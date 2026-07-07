@@ -43,16 +43,21 @@
     .vertical{writing-mode:vertical-rl;text-orientation:mixed}
     .small{font-size:22px}.mid{font-size:24px}.big{font-size:28px}
     #rotateHint{display:none;position:fixed;inset:0;background:#111;color:white;z-index:20;align-items:center;justify-content:center;text-align:center;font:800 26px/1.25 Arial;padding:30px}
-    .voicePanel{position:fixed;right:14px;bottom:14px;z-index:10;background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.18);border-radius:14px;padding:10px;display:flex;gap:8px;align-items:center;font:800 13px Arial;color:#111;box-shadow:0 4px 18px rgba(0,0,0,.12)}
-    .voicePanel select,.voicePanel button{position:static;width:auto;height:38px;border-radius:10px;border:1px solid rgba(0,0,0,.2);background:#fff;color:#111;font:800 13px Arial;text-transform:none;padding:0 10px;display:block}
+    .settingsToggle{position:fixed;left:12px;bottom:12px;z-index:12;width:58px;height:58px;border-radius:18px;background:#111;color:#fff;font:900 26px Arial;border:0;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.22);text-transform:none;padding:0}
+    .settingsToggle:active{transform:scale(.96)}
+    .voicePanel{position:fixed;left:12px;bottom:82px;z-index:11;background:rgba(255,255,255,.96);border:1px solid rgba(0,0,0,.18);border-radius:18px;padding:14px;display:none;gap:10px;align-items:center;font:800 16px Arial;color:#111;box-shadow:0 8px 28px rgba(0,0,0,.18)}
+    .voicePanel.open{display:flex}
+    .voicePanel select,.voicePanel button{position:static;width:auto;height:48px;border-radius:12px;border:1px solid rgba(0,0,0,.22);background:#fff;color:#111;font:800 16px Arial;text-transform:none;padding:0 12px;display:block}
     .voicePanel button{background:#111;color:#fff}
-    @media (orientation:portrait){#rotateHint{display:flex}.app{display:none}.voicePanel{display:none}}
+    .voicePanel .closeSettings{background:#eee;color:#111;width:48px;padding:0;font-size:24px}
+    @media (orientation:portrait){#rotateHint{display:flex}.app{display:none}.voicePanel,.settingsToggle{display:none}}
   </style>
 </head>
 <body>
   <div id="rotateHint">Поверни телефон горизонтально</div>
   <main class="app" id="app"><section class="board" id="board"></section></main>
-  <div class="voicePanel">
+  <button class="settingsToggle" id="settingsToggle" type="button" aria-label="Налаштування">⚙</button>
+  <div class="voicePanel" id="voicePanel">
     <label for="voiceMode">Голос</label>
     <select id="voiceMode">
       <option value="auto">Auto</option>
@@ -61,6 +66,7 @@
     </select>
     <select id="voiceSelect" title="Системний голос"></select>
     <button id="testVoice" type="button">Тест</button>
+    <button class="closeSettings" id="closeSettings" type="button" aria-label="Закрити">×</button>
   </div>
 
 <script>
@@ -162,6 +168,11 @@ let voices=[];
 const voiceMode=document.getElementById('voiceMode');
 const voiceSelect=document.getElementById('voiceSelect');
 const testVoice=document.getElementById('testVoice');
+const settingsToggle=document.getElementById('settingsToggle');
+const voicePanel=document.getElementById('voicePanel');
+const closeSettings=document.getElementById('closeSettings');
+settingsToggle.addEventListener('click',()=>voicePanel.classList.toggle('open'));
+closeSettings.addEventListener('click',()=>voicePanel.classList.remove('open'));
 
 function isSpanishVoice(v){ return /^es(-|_)?/i.test(v.lang || ''); }
 function isMaleVoice(v){ return /jorge|diego|carlos|juan|pablo|miguel|antonio|male|hombre|mascul/i.test(v.name || ''); }
