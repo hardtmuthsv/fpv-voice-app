@@ -43,12 +43,25 @@
     .vertical{writing-mode:vertical-rl;text-orientation:mixed}
     .small{font-size:22px}.mid{font-size:24px}.big{font-size:28px}
     #rotateHint{display:none;position:fixed;inset:0;background:#111;color:white;z-index:20;align-items:center;justify-content:center;text-align:center;font:800 26px/1.25 Arial;padding:30px}
-    @media (orientation:portrait){#rotateHint{display:flex}.app{display:none}}
+    .voicePanel{position:fixed;right:14px;bottom:14px;z-index:10;background:rgba(255,255,255,.92);border:1px solid rgba(0,0,0,.18);border-radius:14px;padding:10px;display:flex;gap:8px;align-items:center;font:800 13px Arial;color:#111;box-shadow:0 4px 18px rgba(0,0,0,.12)}
+    .voicePanel select,.voicePanel button{position:static;width:auto;height:38px;border-radius:10px;border:1px solid rgba(0,0,0,.2);background:#fff;color:#111;font:800 13px Arial;text-transform:none;padding:0 10px;display:block}
+    .voicePanel button{background:#111;color:#fff}
+    @media (orientation:portrait){#rotateHint{display:flex}.app{display:none}.voicePanel{display:none}}
   </style>
 </head>
 <body>
   <div id="rotateHint">Поверни телефон горизонтально</div>
   <main class="app" id="app"><section class="board" id="board"></section></main>
+  <div class="voicePanel">
+    <label for="voiceMode">Голос</label>
+    <select id="voiceMode">
+      <option value="auto">Auto</option>
+      <option value="male" selected>Чоловічий</option>
+      <option value="female">Жіночий</option>
+    </select>
+    <select id="voiceSelect" title="Системний голос"></select>
+    <button id="testVoice" type="button">Тест</button>
+  </div>
 
 <script>
 const board = document.getElementById('board');
@@ -64,32 +77,32 @@ const buttons = [
   [1140,55,188,118,'КАМЕРА 90','top','Cámara noventa.'],
   [1345,55,245,118,'ІНВЕРСІЯ\nКЕРУВАННЯ','top','Inversión de control.'],
 
-  // left red "throttle" urgent
-  [36,213,246,116,'МИ ПАДАЄМО\nДАЙ ГАЗ ВГОРУ','red','Estamos cayendo. "Throttle" más fuerte.'],
-  [36,346,246,116,'ДРОН ТРЯСЕ\n"THROTTLE" ВГОРУ','red','El drone tiembla. "Throttle" arriba.'],
+  // left red throttle urgent
+  [36,213,246,116,'МИ ПАДАЄМО\nДАЙ ГАЗ ВГОРУ','red','Estamos cayendo. Throttle más fuerte.'],
+  [36,346,246,116,'ДРОН ТРЯСЕ\nTHROTTLE ВГОРУ','red','El drone tiembla. Throttle arriba.'],
 
-  // "throttle" block
-  [313,213,137,66,'','red','"Throttle" arriba grande.'],
-  [313,303,137,66,'','red2','"Throttle" arriba mediano.'],
-  [313,392,137,66,'','red3','"Throttle" arriba chico.'],
-  [473,213,246,116,'"THROTTLE"\n90','red','"Throttle" noventa.'],
-  [473,342,246,116,'"THROTTLE"\n60','red2','"Throttle" sesenta.'],
-  [313,635,137,66,'','red3','"Throttle" abajo chico.'],
-  [313,724,137,66,'','gray','"Throttle" abajo mediano.'],
-  [313,814,137,66,'','white','"Throttle" abajo grande.'],
-  [473,768,246,116,'ПОВІЛЬНО ВНИЗ\n"THROTTLE"','gray','"Throttle" abajo despacio.'],
-  [747,213,132,116,'МАЛО\n"THROTTLE"','gray','Poco "throttle".'],
-  [747,346,132,116,'БАГАТО\n"THROTTLE"','gray','Mucho "throttle".'],
+  // throttle block
+  [313,213,137,66,'','red','Throttle arriba grande.'],
+  [313,303,137,66,'','red2','Throttle arriba mediano.'],
+  [313,392,137,66,'','red3','Throttle arriba chico.'],
+  [473,213,246,116,'THROTTLE\n90','red','Throttle noventa.'],
+  [473,342,246,116,'THROTTLE\n60','red2','Throttle sesenta.'],
+  [313,635,137,66,'','red3','Throttle abajo chico.'],
+  [313,724,137,66,'','gray','Throttle abajo mediano.'],
+  [313,814,137,66,'','white','Throttle abajo grande.'],
+  [473,768,246,116,'ПОВІЛЬНО ВНИЗ\nTHROTTLE','gray','Throttle abajo despacio.'],
+  [747,213,132,116,'МАЛО\nTHROTTLE','gray','Poco throttle.'],
+  [747,346,132,116,'БАГАТО\nTHROTTLE','gray','Mucho throttle.'],
 
-  // "yaw"/"roll" blue
-  [36,478,68,136,'','blue','"Yaw" izquierda grande.'],
-  [127,478,68,136,'','blue2','"Yaw" izquierda mediano.'],
-  [218,478,68,136,'','blue3','"Yaw" izquierda chico.'],
-  [36,635,247,116,'ПОВЕРТАЄМО\nЛІВОРУЧ','blue2','"Yaw" izquierda mediano.'],
-  [473,478,68,136,'','blue3','"Yaw" derecha chico.'],
-  [563,478,68,136,'','blue2','"Yaw" derecha mediano.'],
-  [653,478,68,136,'','blue','"Yaw" derecha grande.'],
-  [473,635,247,116,'ПОВЕРТАЄМО\nПРАВОРУЧ','blue2','"Yaw" derecha mediano.'],
+  // yaw/roll blue
+  [36,478,68,136,'','blue','Yaw izquierda grande.'],
+  [127,478,68,136,'','blue2','Yaw izquierda mediano.'],
+  [218,478,68,136,'','blue3','Yaw izquierda chico.'],
+  [36,635,247,116,'ПОВЕРТАЄМО\nЛІВОРУЧ','blue2','Yaw izquierda mediano.'],
+  [473,478,68,136,'','blue3','Yaw derecha chico.'],
+  [563,478,68,136,'','blue2','Yaw derecha mediano.'],
+  [653,478,68,136,'','blue','Yaw derecha grande.'],
+  [473,635,247,116,'ПОВЕРТАЄМО\nПРАВОРУЧ','blue2','Yaw derecha mediano.'],
   [36,768,246,116,'НЕ НАБИРАЙ\nШВИДКО ВИСОТУ','gray','No subas muy rápido.'],
 
   // altitude gray
@@ -101,27 +114,27 @@ const buttons = [
   [908,213,246,116,'ТРИМАЙ ВИСОТУ','green2','Mantén la altura.'],
   [908,342,246,116,'НЕ ЛІТАЙ ЗАДОМ','green2','No vueles hacia atrás.'],
   [908,635,246,116,'ВИРІВНЯЙ\nГОРИЗОНТ','yellow2','Nivela el horizonte.'],
-  [908,768,246,116,'ПІДНІМИ НІС\nДРОНА','green2','"Pitch" arriba. Sube la nariz del drone.'],
+  [908,768,246,116,'ПІДНІМИ НІС\nДРОНА','green2','Pitch arriba. Sube la nariz del drone.'],
 
-  // "pitch" green/yellow
-  [1185,213,137,66,'','green','"Pitch" arriba grande.'],
-  [1185,303,137,66,'','green2','"Pitch" arriba mediano.'],
-  [1185,392,137,66,'','green3','"Pitch" arriba chico.'],
-  [1185,635,137,66,'','green3','"Pitch" abajo chico.'],
-  [1185,724,137,66,'','green2','"Pitch" abajo mediano.'],
-  [1185,814,137,66,'','green','"Pitch" abajo grande.'],
+  // pitch green/yellow
+  [1185,213,137,66,'','green','Pitch arriba grande.'],
+  [1185,303,137,66,'','green2','Pitch arriba mediano.'],
+  [1185,392,137,66,'','green3','Pitch arriba chico.'],
+  [1185,635,137,66,'','green3','Pitch abajo chico.'],
+  [1185,724,137,66,'','green2','Pitch abajo mediano.'],
+  [1185,814,137,66,'','green','Pitch abajo grande.'],
 
-  // right "pitch" block
+  // right pitch block
   [1342,213,247,116,'ТРЕБА\nЛЕТІТИ ВПЕРЕД','gray','Hay que volar hacia adelante.'],
-  [1342,342,247,116,'"PITCH"\nВПЕРЕД','green2','"Pitch" adelante.'],
-  [1342,478,68,136,'','yellow3','"Roll" derecha chico.'],
-  [1432,478,68,136,'','yellow2','"Roll" derecha mediano.'],
-  [1523,478,68,136,'','yellow','"Roll" derecha grande.'],
+  [1342,342,247,116,'PITCH\nВПЕРЕД','green2','Pitch adelante.'],
+  [1342,478,68,136,'','yellow3','Roll derecha chico.'],
+  [1432,478,68,136,'','yellow2','Roll derecha mediano.'],
+  [1523,478,68,136,'','yellow','Roll derecha grande.'],
   [1342,635,247,116,'ДРОН НАХИЛЕНИЙ','gray','El drone está inclinado.'],
-  [1342,768,247,116,'"PITCH"\nНАЗАД','green2','"Pitch" atrás.'],
-  [908,478,68,136,'','yellow','"Roll" izquierda grande.'],
-  [998,478,68,136,'','yellow2','"Roll" izquierda mediano.'],
-  [1088,478,68,136,'','yellow3','"Roll" izquierda chico.'],
+  [1342,768,247,116,'PITCH\nНАЗАД','green2','Pitch atrás.'],
+  [908,478,68,136,'','yellow','Roll izquierda grande.'],
+  [998,478,68,136,'','yellow2','Roll izquierda mediano.'],
+  [1088,478,68,136,'','yellow3','Roll izquierda chico.'],
 ];
 
 function makeButton([x,y,w,h,label,cls,say]){
@@ -146,27 +159,69 @@ function fit(){
 window.addEventListener('resize',fit);fit();
 
 let voices=[];
-function loadVoices(){voices=speechSynthesis.getVoices()||[];}
+const voiceMode=document.getElementById('voiceMode');
+const voiceSelect=document.getElementById('voiceSelect');
+const testVoice=document.getElementById('testVoice');
+
+function isSpanishVoice(v){ return /^es(-|_)?/i.test(v.lang || ''); }
+function isMaleVoice(v){ return /jorge|diego|carlos|juan|pablo|miguel|antonio|male|hombre|mascul/i.test(v.name || ''); }
+function isFemaleVoice(v){ return /paulina|monica|mónica|luciana|marisol|samantha|female|mujer|fem/i.test(v.name || ''); }
+
+function loadVoices(){
+  voices=(speechSynthesis.getVoices()||[]).filter(isSpanishVoice);
+  renderVoiceSelect();
+}
+
+function renderVoiceSelect(){
+  const current=voiceSelect.value;
+  voiceSelect.innerHTML='';
+  const auto=document.createElement('option');
+  auto.value='';
+  auto.textContent='Auto Spanish';
+  voiceSelect.appendChild(auto);
+  voices.forEach((v,i)=>{
+    const o=document.createElement('option');
+    o.value=String(i);
+    o.textContent=`${v.name} · ${v.lang}`;
+    voiceSelect.appendChild(o);
+  });
+  if([...voiceSelect.options].some(o=>o.value===current)) voiceSelect.value=current;
+}
+
 loadVoices();
 if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged=loadVoices;
 
 function pickSpanishVoice(){
-  return voices.find(v=>/^es(-|_)/i.test(v.lang) && /female|mujer|paulina|monica|luciana|marisol|samantha/i.test(v.name))
-      || voices.find(v=>/^es(-|_)/i.test(v.lang))
-      || null;
+  const selectedIndex=voiceSelect.value;
+  if(selectedIndex !== '' && voices[Number(selectedIndex)]) return voices[Number(selectedIndex)];
+
+  const mode=voiceMode.value;
+  if(mode==='male'){
+    return voices.find(isMaleVoice) || voices.find(v=>!isFemaleVoice(v)) || voices[0] || null;
+  }
+  if(mode==='female'){
+    return voices.find(isFemaleVoice) || voices[0] || null;
+  }
+  return voices[0] || null;
 }
+
 function speak(text){
   if (!('speechSynthesis' in window)) { alert('Speech synthesis is not supported'); return; }
+  loadVoices();
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(text);
   u.lang='es-ES';
-  u.rate=1.05;
-  u."pitch"=1;
+  u.rate=0.96;
+  u.pitch=0.88;
   u.volume=1;
   const v=pickSpanishVoice();
   if(v) u.voice=v;
   speechSynthesis.speak(u);
 }
+
+testVoice.addEventListener('click',()=>speak('Yaw derecha grande.'));
+voiceMode.addEventListener('change',()=>speak('Pitch arriba mediano.'));
+voiceSelect.addEventListener('change',()=>speak('Throttle más fuerte.'));
 
 // unlock iOS voices on first touch
 window.addEventListener('touchstart',()=>{loadVoices();},{once:true});
