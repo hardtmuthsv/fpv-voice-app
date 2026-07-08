@@ -79,7 +79,6 @@ const board = document.getElementById('board');
 const COMMANDS = window.FPV_COMMANDS || [];
 const COMMAND_BY_ID = Object.fromEntries(COMMANDS.map(command=>[command.id, command]));
 const APP_LANGUAGES = window.FPV_LANGUAGES || [['uk-UA','Українська']];
-const GENERATED_TRANSLATIONS = window.FPV_TRANSLATIONS || {};
 
 function makeButton(command){
   const b=document.createElement('button');
@@ -155,23 +154,12 @@ function pickVoice(){
   return voices[0] || null;
 }
 
-function selectedText(commandId){
-  const command=COMMAND_BY_ID[commandId];
-  if(!command) return commandId;
-  const manualTranslation=command.translations && command.translations[languageSelect.value];
-  if(manualTranslation) return manualTranslation;
-  if(languageSelect.value==='uk-UA' && command.speechUk) return command.speechUk;
-  const speechKey=command.speechKey || command.id;
-  const generated=(GENERATED_TRANSLATIONS[languageSelect.value] || GENERATED_TRANSLATIONS['en-US'] || {})[speechKey];
-  return generated || command.speechUk || command.buttonLabel || command.id;
-}
-
-function speak(text){
+function speak(text, lang=languageSelect.value){
   if (!('speechSynthesis' in window)) { alert('Speech synthesis is not supported'); return; }
   loadVoices();
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(text);
-  u.lang=languageSelect.value;
+  u.lang=lang;
   u.rate=0.96;
   u.pitch=0.88;
   u.volume=1;
@@ -180,8 +168,10 @@ function speak(text){
   speechSynthesis.speak(u);
 }
 
-function speakCommand(command){
-  speak(selectedText(command));
+function speakCommand(commandId){
+  const command=COMMAND_BY_ID[commandId];
+  if(!command || !command.speechUk) return;
+  speak(command.speechUk, 'uk-UA');
 }
 
 testVoice.addEventListener('click',()=>speakCommand('yaw_right_large'));

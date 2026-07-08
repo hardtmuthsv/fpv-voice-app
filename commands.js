@@ -2,7 +2,7 @@ const FPV_COMMANDS = [
   {
     id: "arm",
     buttonLabel: "ARM",
-    speechUk: "",
+    speechUk: "ARM",
     translations: {},
     x: 36,
     y: 55,
@@ -14,7 +14,7 @@ const FPV_COMMANDS = [
   {
     id: "disarm",
     buttonLabel: "DISARM",
-    speechUk: "",
+    speechUk: "DISARM",
     translations: {},
     x: 143,
     y: 55,
@@ -25,8 +25,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "vtx_power",
-    buttonLabel: "ПОТУЖНІСТЬ\nVTX",
-    speechUk: "",
+    buttonLabel: "ПОТУЖНІСТЬ VTX",
+    speechUk: "ПОТУЖНІСТЬ VTX",
     translations: {},
     x: 296,
     y: 55,
@@ -38,7 +38,7 @@ const FPV_COMMANDS = [
   {
     id: "battery",
     buttonLabel: "БАТАРЕЯ",
-    speechUk: "",
+    speechUk: "БАТАРЕЯ",
     translations: {},
     x: 528,
     y: 55,
@@ -50,7 +50,7 @@ const FPV_COMMANDS = [
   {
     id: "camera_0",
     buttonLabel: "КАМЕРА 0",
-    speechUk: "",
+    speechUk: "КАМЕРА 0",
     translations: {},
     x: 735,
     y: 55,
@@ -62,7 +62,7 @@ const FPV_COMMANDS = [
   {
     id: "camera_45",
     buttonLabel: "КАМЕРА 45",
-    speechUk: "",
+    speechUk: "КАМЕРА 45",
     translations: {},
     x: 938,
     y: 55,
@@ -74,7 +74,7 @@ const FPV_COMMANDS = [
   {
     id: "camera_90",
     buttonLabel: "КАМЕРА 90",
-    speechUk: "",
+    speechUk: "КАМЕРА 90",
     translations: {},
     x: 1140,
     y: 55,
@@ -85,8 +85,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "control_invert",
-    buttonLabel: "ІНВЕРСІЯ\nКЕРУВАННЯ",
-    speechUk: "",
+    buttonLabel: "ІНВЕРСІЯ КЕРУВАННЯ",
+    speechUk: "ІНВЕРСІЯ КЕРУВАННЯ",
     translations: {},
     x: 1345,
     y: 55,
@@ -97,8 +97,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "falling_throttle_up",
-    buttonLabel: "МИ ПАДАЄМО\nДАЙ ГАЗ ВГОРУ",
-    speechUk: "",
+    buttonLabel: "МИ ПАДАЄМО ДАЙ ГАЗ ВГОРУ",
+    speechUk: "МИ ПАДАЄМО ДАЙ ГАЗ ВГОРУ",
     translations: {},
     x: 36,
     y: 213,
@@ -109,8 +109,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "shaking_throttle_up",
-    buttonLabel: "ДРОН ТРЯСЕ\nTHROTTLE ВГОРУ",
-    speechUk: "",
+    buttonLabel: "ДРОН ТРЯСЕ THROTTLE ВГОРУ",
+    speechUk: "ДРОН ТРЯСЕ THROTTLE ВГОРУ",
     translations: {},
     x: 36,
     y: 346,
@@ -122,7 +122,7 @@ const FPV_COMMANDS = [
   {
     id: "throttle_up_large",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "дуже сильно THROTTLE в гору",
     translations: {},
     x: 313,
     y: 213,
@@ -134,7 +134,7 @@ const FPV_COMMANDS = [
   {
     id: "throttle_up_medium",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "сильніше THROTTLE в гору",
     translations: {},
     x: 313,
     y: 303,
@@ -146,7 +146,7 @@ const FPV_COMMANDS = [
   {
     id: "throttle_up_small",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "трохи THROTTLE в гору",
     translations: {},
     x: 313,
     y: 392,
@@ -157,8 +157,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "throttle_90",
-    buttonLabel: "THROTTLE\n90",
-    speechUk: "",
+    buttonLabel: "THROTTLE 90",
+    speechUk: "THROTTLE 90",
     translations: {},
     x: 473,
     y: 213,
@@ -169,8 +169,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "throttle_60",
-    buttonLabel: "THROTTLE\n60",
-    speechUk: "",
+    buttonLabel: "THROTTLE 60",
+    speechUk: "THROTTLE 60",
     translations: {},
     x: 473,
     y: 342,
@@ -182,7 +182,7 @@ const FPV_COMMANDS = [
   {
     id: "throttle_down_small",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "трохи THROTTLE до низу",
     translations: {},
     x: 313,
     y: 635,
@@ -194,7 +194,7 @@ const FPV_COMMANDS = [
   {
     id: "throttle_down_medium",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "сильніше THROTTLE до низу",
     translations: {},
     x: 313,
     y: 724,
@@ -206,7 +206,7 @@ const FPV_COMMANDS = [
   {
     id: "throttle_down_large",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "дуже сильно THROTTLE до низу",
     translations: {},
     x: 313,
     y: 814,
@@ -217,8 +217,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "throttle_down_slow",
-    buttonLabel: "ПОВІЛЬНО ВНИЗ\nTHROTTLE",
-    speechUk: "",
+    buttonLabel: "ПОВІЛЬНО ВНИЗ THROTTLE",
+    speechUk: "ПОВІЛЬНО ВНИЗ THROTTLE",
     translations: {},
     x: 473,
     y: 768,
@@ -229,8 +229,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "throttle_low",
-    buttonLabel: "МАЛО\nTHROTTLE",
-    speechUk: "",
+    buttonLabel: "МАЛО THROTTLE",
+    speechUk: "МАЛО THROTTLE",
     translations: {},
     x: 747,
     y: 213,
@@ -241,8 +241,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "throttle_high",
-    buttonLabel: "БАГАТО\nTHROTTLE",
-    speechUk: "",
+    buttonLabel: "БАГАТО THROTTLE",
+    speechUk: "БАГАТО THROTTLE",
     translations: {},
     x: 747,
     y: 346,
@@ -254,7 +254,7 @@ const FPV_COMMANDS = [
   {
     id: "yaw_left_large",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "дуже сильно yaw ліворуч",
     translations: {},
     x: 36,
     y: 478,
@@ -266,7 +266,7 @@ const FPV_COMMANDS = [
   {
     id: "yaw_left_medium",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "сильніше yaw ліворуч",
     translations: {},
     x: 127,
     y: 478,
@@ -278,7 +278,7 @@ const FPV_COMMANDS = [
   {
     id: "yaw_left_small",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "трохи yaw ліворуч",
     translations: {},
     x: 218,
     y: 478,
@@ -289,8 +289,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "turn_left",
-    buttonLabel: "ПОВЕРТАЄМО\nЛІВОРУЧ",
-    speechUk: "",
+    buttonLabel: "ПОВЕРТАЄМО ЛІВОРУЧ",
+    speechUk: "ПОВЕРТАЄМО ЛІВОРУЧ",
     translations: {},
     x: 36,
     y: 635,
@@ -302,7 +302,7 @@ const FPV_COMMANDS = [
   {
     id: "yaw_right_small",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "трохи yaw праворуч",
     translations: {},
     x: 473,
     y: 478,
@@ -314,7 +314,7 @@ const FPV_COMMANDS = [
   {
     id: "yaw_right_medium",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "сильніше yaw праворуч",
     translations: {},
     x: 563,
     y: 478,
@@ -326,7 +326,7 @@ const FPV_COMMANDS = [
   {
     id: "yaw_right_large",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "дуже сильно yaw праворуч",
     translations: {},
     x: 653,
     y: 478,
@@ -337,8 +337,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "turn_right",
-    buttonLabel: "ПОВЕРТАЄМО\nПРАВОРУЧ",
-    speechUk: "",
+    buttonLabel: "ПОВЕРТАЄМО ПРАВОРУЧ",
+    speechUk: "ПОВЕРТАЄМО ПРАВОРУЧ",
     translations: {},
     x: 473,
     y: 635,
@@ -349,8 +349,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "dont_climb_fast",
-    buttonLabel: "НЕ НАБИРАЙ\nШВИДКО ВИСОТУ",
-    speechUk: "",
+    buttonLabel: "НЕ НАБИРАЙ ШВИДКО ВИСОТУ",
+    speechUk: "НЕ НАБИРАЙ ШВИДКО ВИСОТУ",
     translations: {},
     x: 36,
     y: 768,
@@ -361,8 +361,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "altitude_500",
-    buttonLabel: "ВИСОТА\n500",
-    speechUk: "",
+    buttonLabel: "ВИСОТА 500",
+    speechUk: "ВИСОТА 500",
     translations: {},
     x: 747,
     y: 489,
@@ -373,8 +373,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "altitude_300",
-    buttonLabel: "ВИСОТА\n300",
-    speechUk: "",
+    buttonLabel: "ВИСОТА 300",
+    speechUk: "ВИСОТА 300",
     translations: {},
     x: 747,
     y: 635,
@@ -385,8 +385,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "altitude_200",
-    buttonLabel: "ВИСОТА\n200",
-    speechUk: "",
+    buttonLabel: "ВИСОТА 200",
+    speechUk: "ВИСОТА 200",
     translations: {},
     x: 747,
     y: 768,
@@ -398,7 +398,7 @@ const FPV_COMMANDS = [
   {
     id: "hold_altitude",
     buttonLabel: "ТРИМАЙ ВИСОТУ",
-    speechUk: "",
+    speechUk: "ТРИМАЙ ВИСОТУ",
     translations: {},
     x: 908,
     y: 213,
@@ -410,7 +410,7 @@ const FPV_COMMANDS = [
   {
     id: "dont_fly_backwards",
     buttonLabel: "НЕ ЛІТАЙ ЗАДОМ",
-    speechUk: "",
+    speechUk: "НЕ ЛІТАЙ ЗАДОМ",
     translations: {},
     x: 908,
     y: 342,
@@ -421,8 +421,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "level_horizon",
-    buttonLabel: "ВИРІВНЯЙ\nГОРИЗОНТ",
-    speechUk: "",
+    buttonLabel: "ВИРІВНЯЙ ГОРИЗОНТ",
+    speechUk: "ВИРІВНЯЙ ГОРИЗОНТ",
     translations: {},
     x: 908,
     y: 635,
@@ -433,8 +433,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "raise_nose",
-    buttonLabel: "ПІДНІМИ НІС\nДРОНА",
-    speechUk: "",
+    buttonLabel: "ПІДНІМИ НІС ДРОНА",
+    speechUk: "ПІДНІМИ НІС ДРОНА",
     translations: {},
     x: 908,
     y: 768,
@@ -446,7 +446,7 @@ const FPV_COMMANDS = [
   {
     id: "pitch_up_large",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "дуже сильно pitch в гору",
     translations: {},
     x: 1185,
     y: 213,
@@ -458,7 +458,7 @@ const FPV_COMMANDS = [
   {
     id: "pitch_up_medium",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "сильніше pitch в гору",
     translations: {},
     x: 1185,
     y: 303,
@@ -470,7 +470,7 @@ const FPV_COMMANDS = [
   {
     id: "pitch_up_small",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "трохи pitch в гору",
     translations: {},
     x: 1185,
     y: 392,
@@ -482,7 +482,7 @@ const FPV_COMMANDS = [
   {
     id: "pitch_down_small",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "трохи pitch до низу",
     translations: {},
     x: 1185,
     y: 635,
@@ -494,7 +494,7 @@ const FPV_COMMANDS = [
   {
     id: "pitch_down_medium",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "сильніше pitch до низу",
     translations: {},
     x: 1185,
     y: 724,
@@ -506,7 +506,7 @@ const FPV_COMMANDS = [
   {
     id: "pitch_down_large",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "дуже сильно pitch до низу",
     translations: {},
     x: 1185,
     y: 814,
@@ -517,8 +517,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "fly_forward",
-    buttonLabel: "ТРЕБА\nЛЕТІТИ ВПЕРЕД",
-    speechUk: "",
+    buttonLabel: "ТРЕБА ЛЕТІТИ ВПЕРЕД",
+    speechUk: "ТРЕБА ЛЕТІТИ ВПЕРЕД",
     translations: {},
     x: 1342,
     y: 213,
@@ -529,8 +529,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "pitch_forward",
-    buttonLabel: "PITCH\nВПЕРЕД",
-    speechUk: "",
+    buttonLabel: "PITCH ВПЕРЕД",
+    speechUk: "PITCH ВПЕРЕД",
     translations: {},
     x: 1342,
     y: 342,
@@ -542,7 +542,7 @@ const FPV_COMMANDS = [
   {
     id: "roll_right_small",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "трохи roll праворуч",
     translations: {},
     x: 1342,
     y: 478,
@@ -554,7 +554,7 @@ const FPV_COMMANDS = [
   {
     id: "roll_right_medium",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "сильно roll праворуч",
     translations: {},
     x: 1432,
     y: 478,
@@ -566,7 +566,7 @@ const FPV_COMMANDS = [
   {
     id: "roll_right_large",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "дуже сильно roll праворуч",
     translations: {},
     x: 1523,
     y: 478,
@@ -578,7 +578,7 @@ const FPV_COMMANDS = [
   {
     id: "drone_tilted",
     buttonLabel: "ДРОН НАХИЛЕНИЙ",
-    speechUk: "",
+    speechUk: "ДРОН НАХИЛЕНИЙ",
     translations: {},
     x: 1342,
     y: 635,
@@ -589,8 +589,8 @@ const FPV_COMMANDS = [
   },
   {
     id: "pitch_back",
-    buttonLabel: "PITCH\nНАЗАД",
-    speechUk: "",
+    buttonLabel: "PITCH НАЗАД",
+    speechUk: "PITCH НАЗАД",
     translations: {},
     x: 1342,
     y: 768,
@@ -602,7 +602,7 @@ const FPV_COMMANDS = [
   {
     id: "roll_left_large",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "дуже сильно roll ліворуч",
     translations: {},
     x: 908,
     y: 478,
@@ -614,7 +614,7 @@ const FPV_COMMANDS = [
   {
     id: "roll_left_medium",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "сильно roll ліворуч",
     translations: {},
     x: 998,
     y: 478,
@@ -626,7 +626,7 @@ const FPV_COMMANDS = [
   {
     id: "roll_left_small",
     buttonLabel: "",
-    speechUk: "",
+    speechUk: "трохи roll ліворуч",
     translations: {},
     x: 1088,
     y: 478,
