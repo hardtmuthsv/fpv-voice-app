@@ -178,6 +178,48 @@ const LANGUAGES = [
   ['is-IS','Íslenska'],['el-GR','Ελληνικά'],['tr-TR','Türkçe'],['ko-KR','한국어']
 ];
 
+// FPV control terms stay in English in every spoken language.
+const PROTECTED_TERMS = {
+  yaw:'Yaw',
+  roll:'Roll',
+  pitch:'Pitch',
+  throttle:'Throttle',
+  arm:'Arm',
+  disarm:'Disarm',
+  vtx:'VTX',
+  rssi:'RSSI',
+  gps:'GPS',
+  osd:'OSD',
+  elrs:'ELRS'
+};
+
+const PROTECTED_ALIASES = {
+  throttle:[
+    'Throttle','газ','гас','gas','gaz','gass','gaas','gāze','gazas','kaasu','gjof','gjöf',
+    'gases','acelerador','plyn','plin','aumenta o acelerador','acelerador para cima',
+    'Γκάζι','γκάζι','스로틀'
+  ],
+  yaw:['Yaw','Рискання','Lacet','Gier','Guinada','Јо','요'],
+  roll:['Roll','Крен','Roulis','Рол','롤'],
+  pitch:['Pitch','Тангаж','Nick','Пич','피치'],
+  arm:[
+    'Arm','Арм','Armar','Armer','Scharf schalten','Arma','Armen','Uzbrój','Zapnout arm',
+    'Zapni arm','Vklopi arm','Uključi arm','Armează','Élesítés','Armi','Ieslēdz arm',
+    'Įjungti arm','Armaa','Arma','Virkja','Όπλιση','Arm et','시동'
+  ],
+  disarm:[
+    'Disarm','Дизарм','Desarmar','Désarmer','Entschärfen','Disarma','Ontwapenen','Rozbrój',
+    'Vypnout arm','Vypni arm','Izklopi arm','Isključi arm','Dezarmează','Hatástalanítás',
+    'Disarmi','Izslēdz arm','Išjungti arm','Disarmaa','Avväpna','Afvirkja','Αφοπλισμός',
+    'Disarm et','시동 해제'
+  ],
+  vtx:['VTX'],
+  rssi:['RSSI'],
+  gps:['GPS'],
+  osd:['OSD'],
+  elrs:['ELRS']
+};
+
 const TERMS = {
   'uk-UA':{throttle:'Газ',yaw:'Рискання',pitch:'Тангаж',roll:'Крен',up:'вгору',down:'вниз',left:'ліворуч',right:'праворуч',forward:'вперед',back:'назад',large:'сильно',medium:'середньо',small:'трохи',low:'мало газу',high:'багато газу',slow:'повільно',arm:'Арм.',disarm:'Дизарм.',vtxPower:'Потужність VTX.',battery:'Батарея.',camera:'Камера',controlInvert:'Інверсія керування.',fallingThrottleUp:'Ми падаємо. Дай газ вгору.',shakingThrottleUp:'Дрон трясе. Газ вгору.',turnLeft:'Повертаємо ліворуч.',turnRight:'Повертаємо праворуч.',dontClimbFast:'Не набирай швидко висоту.',holdAltitude:'Тримай висоту.',dontFlyBackwards:'Не літай задом.',levelHorizon:'Вирівняй горизонт.',raiseNose:'Підніми ніс дрона.',flyForward:'Треба летіти вперед.',droneTilted:'Дрон нахилений.',altitude:'Висота'},
   'en-US':{throttle:'Throttle',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'up',down:'down',left:'left',right:'right',forward:'forward',back:'back',large:'large',medium:'medium',small:'small',low:'Low throttle',high:'High throttle',slow:'slow',arm:'Arm.',disarm:'Disarm.',vtxPower:'VTX power.',battery:'Battery.',camera:'Camera',controlInvert:'Control inversion.',fallingThrottleUp:'We are falling. Throttle up.',shakingThrottleUp:'The drone is shaking. Throttle up.',turnLeft:'Turn left.',turnRight:'Turn right.',dontClimbFast:'Do not climb too fast.',holdAltitude:'Hold altitude.',dontFlyBackwards:'Do not fly backward.',levelHorizon:'Level the horizon.',raiseNose:'Raise the drone nose.',flyForward:'Fly forward.',droneTilted:'The drone is tilted.',altitude:'Altitude'},
@@ -210,26 +252,33 @@ const TERMS = {
 };
 
 function phrasePack(t){
+  const protectedWords=Object.entries(PROTECTED_ALIASES)
+    .flatMap(([key, aliases])=>aliases.map(alias=>[alias, PROTECTED_TERMS[key]]))
+    .sort((a,b)=>b[0].length-a[0].length);
   const phrase=(...parts)=>parts.filter(Boolean).join(' ') + '.';
+  const protect=(text)=>protectedWords.reduce((result,[alias, term])=>{
+    const escaped=alias.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    return result.replace(new RegExp(escaped,'gi'), term);
+  }, text);
   return {
-    arm:t.arm, disarm:t.disarm, vtxPower:t.vtxPower, battery:t.battery,
+    arm:phrase(PROTECTED_TERMS.arm), disarm:phrase(PROTECTED_TERMS.disarm), vtxPower:protect(t.vtxPower), battery:t.battery,
     camera0:phrase(t.camera,'0'), camera45:phrase(t.camera,'45'), camera90:phrase(t.camera,'90'),
-    controlInvert:t.controlInvert, fallingThrottleUp:t.fallingThrottleUp, shakingThrottleUp:t.shakingThrottleUp,
-    throttleUpLarge:phrase(t.throttle,t.up,t.large), throttleUpMedium:phrase(t.throttle,t.up,t.medium), throttleUpSmall:phrase(t.throttle,t.up,t.small),
-    throttle90:phrase(t.throttle,'90'), throttle60:phrase(t.throttle,'60'),
-    throttleDownSmall:phrase(t.throttle,t.down,t.small), throttleDownMedium:phrase(t.throttle,t.down,t.medium), throttleDownLarge:phrase(t.throttle,t.down,t.large),
-    throttleDownSlow:phrase(t.throttle,t.down,t.slow), throttleLow:t.low + '.', throttleHigh:t.high + '.',
-    yawLeftLarge:phrase(t.yaw,t.left,t.large), yawLeftMedium:phrase(t.yaw,t.left,t.medium), yawLeftSmall:phrase(t.yaw,t.left,t.small),
-    turnLeft:t.turnLeft, yawRightSmall:phrase(t.yaw,t.right,t.small), yawRightMedium:phrase(t.yaw,t.right,t.medium), yawRightLarge:phrase(t.yaw,t.right,t.large),
+    controlInvert:t.controlInvert, fallingThrottleUp:protect(t.fallingThrottleUp), shakingThrottleUp:protect(t.shakingThrottleUp),
+    throttleUpLarge:phrase(PROTECTED_TERMS.throttle,t.up,t.large), throttleUpMedium:phrase(PROTECTED_TERMS.throttle,t.up,t.medium), throttleUpSmall:phrase(PROTECTED_TERMS.throttle,t.up,t.small),
+    throttle90:phrase(PROTECTED_TERMS.throttle,'90'), throttle60:phrase(PROTECTED_TERMS.throttle,'60'),
+    throttleDownSmall:phrase(PROTECTED_TERMS.throttle,t.down,t.small), throttleDownMedium:phrase(PROTECTED_TERMS.throttle,t.down,t.medium), throttleDownLarge:phrase(PROTECTED_TERMS.throttle,t.down,t.large),
+    throttleDownSlow:phrase(PROTECTED_TERMS.throttle,t.down,t.slow), throttleLow:protect(t.low) + '.', throttleHigh:protect(t.high) + '.',
+    yawLeftLarge:phrase(PROTECTED_TERMS.yaw,t.left,t.large), yawLeftMedium:phrase(PROTECTED_TERMS.yaw,t.left,t.medium), yawLeftSmall:phrase(PROTECTED_TERMS.yaw,t.left,t.small),
+    turnLeft:t.turnLeft, yawRightSmall:phrase(PROTECTED_TERMS.yaw,t.right,t.small), yawRightMedium:phrase(PROTECTED_TERMS.yaw,t.right,t.medium), yawRightLarge:phrase(PROTECTED_TERMS.yaw,t.right,t.large),
     turnRight:t.turnRight, dontClimbFast:t.dontClimbFast,
     alt500:phrase(t.altitude,'500'), alt300:phrase(t.altitude,'300'), alt200:phrase(t.altitude,'200'),
     holdAltitude:t.holdAltitude, dontFlyBackwards:t.dontFlyBackwards, levelHorizon:t.levelHorizon, raiseNose:t.raiseNose,
-    pitchUpLarge:phrase(t.pitch,t.up,t.large), pitchUpMedium:phrase(t.pitch,t.up,t.medium), pitchUpSmall:phrase(t.pitch,t.up,t.small),
-    pitchDownSmall:phrase(t.pitch,t.down,t.small), pitchDownMedium:phrase(t.pitch,t.down,t.medium), pitchDownLarge:phrase(t.pitch,t.down,t.large),
-    flyForward:t.flyForward, pitchForward:phrase(t.pitch,t.forward), rollRightSmall:phrase(t.roll,t.right,t.small),
-    rollRightMedium:phrase(t.roll,t.right,t.medium), rollRightLarge:phrase(t.roll,t.right,t.large),
-    droneTilted:t.droneTilted, pitchBack:phrase(t.pitch,t.back), rollLeftLarge:phrase(t.roll,t.left,t.large),
-    rollLeftMedium:phrase(t.roll,t.left,t.medium), rollLeftSmall:phrase(t.roll,t.left,t.small)
+    pitchUpLarge:phrase(PROTECTED_TERMS.pitch,t.up,t.large), pitchUpMedium:phrase(PROTECTED_TERMS.pitch,t.up,t.medium), pitchUpSmall:phrase(PROTECTED_TERMS.pitch,t.up,t.small),
+    pitchDownSmall:phrase(PROTECTED_TERMS.pitch,t.down,t.small), pitchDownMedium:phrase(PROTECTED_TERMS.pitch,t.down,t.medium), pitchDownLarge:phrase(PROTECTED_TERMS.pitch,t.down,t.large),
+    flyForward:t.flyForward, pitchForward:phrase(PROTECTED_TERMS.pitch,t.forward), rollRightSmall:phrase(PROTECTED_TERMS.roll,t.right,t.small),
+    rollRightMedium:phrase(PROTECTED_TERMS.roll,t.right,t.medium), rollRightLarge:phrase(PROTECTED_TERMS.roll,t.right,t.large),
+    droneTilted:t.droneTilted, pitchBack:phrase(PROTECTED_TERMS.pitch,t.back), rollLeftLarge:phrase(PROTECTED_TERMS.roll,t.left,t.large),
+    rollLeftMedium:phrase(PROTECTED_TERMS.roll,t.left,t.medium), rollLeftSmall:phrase(PROTECTED_TERMS.roll,t.left,t.small)
   };
 }
 
