@@ -62,21 +62,6 @@
     <button class="closeSettings" id="closeSettings" type="button" aria-label="Закрити">×</button>
     <label for="languageSelect">Мова</label>
     <select id="languageSelect"></select>
-    <label for="voiceMode">Голос</label>
-    <select id="voiceMode">
-      <option value="auto">Auto</option>
-      <option value="male" selected>Чоловічий</option>
-      <option value="female">Жіночий</option>
-    </select>
-    <label for="voiceSelect">Системний голос</label>
-    <select id="voiceSelect" title="Системний голос"></select>
-    <button id="testVoice" type="button">Тест</button>
-    <button id="testMp3" type="button">▶ Test MP3</button>
-    <button class="ttsBenchmark" data-audio-src="audio/uk-UA/test-speed-100.mp3" type="button">▶ Test 1.00</button>
-    <button class="ttsBenchmark" data-audio-src="audio/uk-UA/test-speed-110.mp3" type="button">▶ Test 1.10</button>
-    <button class="ttsBenchmark" data-audio-src="audio/uk-UA/test-speed-120.mp3" type="button">▶ Test 1.20</button>
-    <button class="ttsBenchmark" data-audio-src="audio/uk-UA/test-speed-130.mp3" type="button">▶ Test 1.30</button>
-    <button class="ttsBenchmark" data-audio-src="audio/uk-UA/test-speed-140.mp3" type="button">▶ Test 1.40</button>
   </div>
 
 <script src="commands.js"></script>
@@ -85,132 +70,119 @@ const board = document.getElementById('board');
 const COMMANDS = window.FPV_COMMANDS || [];
 const COMMAND_BY_ID = Object.fromEntries(COMMANDS.map(command=>[command.id, command]));
 const APP_LANGUAGES = window.FPV_LANGUAGES || [['uk-UA','Українська']];
+const AUDIO_LANGUAGES = new Set(['uk-UA','es-ES','en-US']);
+const audioCache = new Map();
+let currentAudio = null;
+let didPreload = false;
 
 function makeButton(command){
   const b=document.createElement('button');
   b.style.left=command.x+'px';b.style.top=command.y+'px';b.style.width=command.width+'px';b.style.height=command.height+'px';
   b.className=command.className;
-  b.innerText=command.buttonLabel ? command.id+'\n'+command.buttonLabel : command.id;
+  b.innerText=command.buttonLabel || command.speechUk || '';
   b.dataset.command=command.id;
   b.addEventListener('click',()=>speakCommand(command.id));
   board.appendChild(b);
 }
 COMMANDS.forEach(makeButton);
 
-let voices=[];
 const languageSelect=document.getElementById('languageSelect');
-const voiceMode=document.getElementById('voiceMode');
-const voiceSelect=document.getElementById('voiceSelect');
-const testVoice=document.getElementById('testVoice');
-const testMp3=document.getElementById('testMp3');
 const settingsToggle=document.getElementById('settingsToggle');
 const voicePanel=document.getElementById('voicePanel');
 const closeSettings=document.getElementById('closeSettings');
 settingsToggle.addEventListener('click',()=>voicePanel.classList.toggle('open'));
 closeSettings.addEventListener('click',()=>voicePanel.classList.remove('open'));
 
-APP_LANGUAGES.forEach(([code,name])=>{
+APP_LANGUAGES.filter(([code])=>AUDIO_LANGUAGES.has(code)).forEach(([code,name])=>{
   const option=document.createElement('option');
   option.value=code;
   option.textContent=name;
   languageSelect.appendChild(option);
 });
-languageSelect.value=localStorage.getItem('fpvVoiceLanguage') || 'es-ES';
+const savedLanguage=localStorage.getItem('fpvVoiceLanguage');
+languageSelect.value=AUDIO_LANGUAGES.has(savedLanguage) ? savedLanguage : 'uk-UA';
 
-function languageRoot(){ return languageSelect.value.split('-')[0].toLowerCase(); }
-function isCurrentLanguageVoice(v){ return (v.lang || '').split(/[-_]/)[0].toLowerCase() === languageRoot(); }
-function isMaleVoice(v){ return /jorge|diego|carlos|juan|pablo|miguel|antonio|male|hombre|mascul/i.test(v.name || ''); }
-function isFemaleVoice(v){ return /paulina|monica|mónica|luciana|marisol|samantha|female|mujer|fem/i.test(v.name || ''); }
-
-function loadVoices(){
-  if (!('speechSynthesis' in window)) return;
-  voices=(speechSynthesis.getVoices()||[]).filter(isCurrentLanguageVoice);
-  renderVoiceSelect();
+function audioPath(commandId, lang=languageSelect.value){
+  return `audio/${lang}/${commandId}.mp3`;
 }
 
-function renderVoiceSelect(){
-  const current=voiceSelect.value;
-  voiceSelect.innerHTML='';
-  const auto=document.createElement('option');
-  auto.value='';
-  auto.textContent='Auto';
-  voiceSelect.appendChild(auto);
-  voices.forEach((v,i)=>{
-    const o=document.createElement('option');
-    o.value=String(i);
-    o.textContent=`${v.name} · ${v.lang}`;
-    voiceSelect.appendChild(o);
-  });
-  if([...voiceSelect.options].some(o=>o.value===current)) voiceSelect.value=current;
+function getAudio(src){
+  if(!audioCache.has(src)){
+    const audio=new Audio(src);
+    audio.preload='auto';
+    audioCache.set(src,audio);
+  }
+  return audioCache.get(src);
 }
 
-loadVoices();
-if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged=loadVoices;
-
-function pickVoice(){
-  const selectedIndex=voiceSelect.value;
-  if(selectedIndex !== '' && voices[Number(selectedIndex)]) return voices[Number(selectedIndex)];
-
-  const mode=voiceMode.value;
-  if(mode==='male'){
-    return voices.find(isMaleVoice) || voices.find(v=>!isFemaleVoice(v)) || voices[0] || null;
-  }
-  if(mode==='female'){
-    return voices.find(isFemaleVoice) || voices[0] || null;
-  }
-  return voices[0] || null;
+function preloadLanguage(lang=languageSelect.value){
+  COMMANDS.forEach(command=>getAudio(audioPath(command.id, lang)));
 }
 
 function speak(text, lang=languageSelect.value){
   if (!('speechSynthesis' in window)) { alert('Speech synthesis is not supported'); return; }
-  loadVoices();
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(text);
   u.lang=lang;
-  u.rate=0.96;
-  u.pitch=0.88;
+  u.rate=1.2;
+  u.pitch=0.9;
   u.volume=1;
-  const v=pickVoice();
-  if(v) u.voice=v;
   speechSynthesis.speak(u);
+}
+
+function fallbackSpeech(command, lang=languageSelect.value){
+  const translated=window.FPV_TRANSLATIONS?.[lang]?.[command.speechKey];
+  speak(translated || command.speechUk || command.buttonLabel || command.id, lang);
 }
 
 function speakCommand(commandId){
   const command=COMMAND_BY_ID[commandId];
-  if(!command || !command.speechUk) return;
-  speak(command.speechUk, 'uk-UA');
-}
+  if(!command) return;
 
-testVoice.addEventListener('click',()=>speakCommand('yaw_right_large'));
-function playAudioFile(src){
-  const audio=new Audio(src);
-  let shown=false;
-  const showMissing=()=>{
-    if(shown) return;
-    shown=true;
-    alert('Test audio not found.');
+  const src=audioPath(command.id);
+  const audio=getAudio(src);
+  let handledError=false;
+
+  if(currentAudio){
+    currentAudio.pause();
+    currentAudio.currentTime=0;
+  }
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+
+  currentAudio=audio;
+  audio.currentTime=0;
+  audio.onerror=()=>{
+    if(audio !== currentAudio) return;
+    if(handledError) return;
+    handledError=true;
+    console.warn(`Missing audio: ${src}`);
+    fallbackSpeech(command);
   };
-  audio.addEventListener('error',showMissing,{once:true});
-  audio.play().catch(showMissing);
+  audio.play().catch(()=>{
+    if(audio !== currentAudio) return;
+    if(handledError) return;
+    handledError=true;
+    console.warn(`Audio playback failed: ${src}`);
+    fallbackSpeech(command);
+  });
 }
 
-testMp3.addEventListener('click',()=>{
-  playAudioFile('audio/uk-UA/test.mp3');
-});
-document.querySelectorAll('.ttsBenchmark').forEach(button=>{
-  button.addEventListener('click',()=>playAudioFile(button.dataset.audioSrc));
-});
+window.addEventListener('pointerdown',()=>{
+  if(didPreload) return;
+  didPreload=true;
+  preloadLanguage();
+},{once:true});
+
+window.addEventListener('touchstart',()=>{
+  if(didPreload) return;
+  didPreload=true;
+  preloadLanguage();
+},{once:true});
+
 languageSelect.addEventListener('change',()=>{
   localStorage.setItem('fpvVoiceLanguage', languageSelect.value);
-  voiceSelect.value='';
-  loadVoices();
-  speakCommand('hold_altitude');
+  preloadLanguage();
 });
-voiceMode.addEventListener('change',()=>speakCommand('pitch_up_medium'));
-voiceSelect.addEventListener('change',()=>speakCommand('falling_throttle_up'));
-
-// unlock iOS voices on first touch
-window.addEventListener('touchstart',()=>{loadVoices();},{once:true});
 </script>
 </body>
 </html>
