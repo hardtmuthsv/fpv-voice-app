@@ -4,689 +4,244 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="theme-color" content="#0d1117" />
+  <meta name="apple-mobile-web-app-title" content="FPV Voice" />
   <title>FPV Voice Commands</title>
   <style>
-    :root {
-      --bg: #0d1117;
-      --panel: #161b22;
-      --panel-2: #1f2937;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-      --blue: #2563eb;
-      --blue-2: #1d4ed8;
-      --green: #16a34a;
-      --green-2: #15803d;
-      --orange: #ea580c;
-      --orange-2: #c2410c;
-      --red: #dc2626;
-      --red-2: #b91c1c;
-      --border: rgba(255,255,255,.12);
-      --shadow: 0 14px 35px rgba(0,0,0,.45);
+    :root{
+      --bg:#f5f5f5;
+      --purple:#a51685;
+      --red:#c33535;
+      --red2:#c95f5f;
+      --red3:#d58383;
+      --blue:#3a82e5;
+      --blue2:#82aeea;
+      --blue3:#aac7ef;
+      --green:#33a44f;
+      --green2:#73bd80;
+      --green3:#b4dbba;
+      --yellow:#ecb930;
+      --yellow2:#f0cf7e;
+      --yellow3:#f5dfa8;
+      --gray:#d8d8d8;
+      --black:#0c0c0c;
+      --white:#fff;
     }
-
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-    html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      overflow: hidden;
-      touch-action: manipulation;
-    }
-
-    body {
-      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-    }
-
-    .app {
-      position: relative;
-      width: 100vw;
-      height: 100dvh;
-      min-height: 100vh;
-      background: radial-gradient(circle at 50% 0%, #172033 0%, #0d1117 55%);
-      overflow: hidden;
-    }
-
-    .stage {
-      position: absolute;
-      inset: 8px 8px 8px 8px;
-      display: grid;
-      grid-template-columns: 1.05fr 1fr 1.05fr;
-      grid-template-rows: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .axis {
-      position: relative;
-      background: rgba(22, 27, 34, .78);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 34px 10px 10px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
-      min-width: 0;
-      min-height: 0;
-    }
-
-    .axis-title {
-      position: absolute;
-      top: 8px;
-      left: 12px;
-      right: 12px;
-      text-align: center;
-      font-size: clamp(13px, 2vw, 18px);
-      font-weight: 900;
-      letter-spacing: .12em;
-      color: #e5e7eb;
-      opacity: .95;
-      pointer-events: none;
-    }
-
-    .throttle { grid-column: 1; grid-row: 1 / span 2; }
-    .yaw { grid-column: 2; grid-row: 1; }
-    .roll { grid-column: 2; grid-row: 2; }
-    .pitch { grid-column: 3; grid-row: 1 / span 2; }
-
-    .vgrid {
-      height: 100%;
-      display: grid;
-      grid-template-rows: repeat(6, 1fr);
-      gap: 8px;
-    }
-
-    .hgrid {
-      height: 100%;
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 7px;
-      align-items: stretch;
-    }
-
-    .extras {
-      position: absolute;
-      left: 8px;
-      right: 8px;
-      bottom: 8px;
-      height: 82px;
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 8px;
-      pointer-events: none;
-      opacity: 0;
-    }
-
-    button.cmd {
-      width: 100%;
-      height: 100%;
-      border: 0;
-      border-radius: 14px;
-      color: white;
-      font-size: clamp(12px, 1.75vw, 18px);
-      line-height: 1.05;
-      font-weight: 850;
-      letter-spacing: -.02em;
-      text-align: center;
-      padding: 7px 6px;
-      box-shadow: 0 5px 0 rgba(0,0,0,.28), 0 11px 22px rgba(0,0,0,.22);
-      cursor: pointer;
-      user-select: none;
-      touch-action: manipulation;
-    }
-
-    button.cmd:active {
-      transform: translateY(4px) scale(.985);
-      box-shadow: 0 1px 0 rgba(0,0,0,.28), 0 5px 12px rgba(0,0,0,.24);
-      filter: brightness(1.12);
-    }
-
-    .blue { background: linear-gradient(180deg, var(--blue), var(--blue-2)); }
-    .green { background: linear-gradient(180deg, var(--green), var(--green-2)); }
-    .orange { background: linear-gradient(180deg, var(--orange), var(--orange-2)); }
-    .red { background: linear-gradient(180deg, var(--red), var(--red-2)); }
-
-    .small-label {
-      display: block;
-      margin-top: 4px;
-      font-size: .72em;
-      font-weight: 700;
-      opacity: .75;
-    }
-
-    .settings-btn {
-      position: fixed;
-      left: calc(10px + env(safe-area-inset-left));
-      bottom: calc(10px + env(safe-area-inset-bottom));
-      z-index: 50;
-      width: 52px;
-      height: 52px;
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      color: white;
-      background: rgba(31,41,55,.92);
-      backdrop-filter: blur(16px);
-      font-size: 26px;
-      box-shadow: var(--shadow);
-    }
-
-    .drawer-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 60;
-      background: rgba(0,0,0,.28);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .18s ease;
-    }
-
-    .drawer-backdrop.open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .drawer {
-      position: fixed;
-      z-index: 70;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      width: min(390px, 92vw);
-      padding: calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom));
-      background: rgba(15,23,42,.98);
-      border-right: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      transform: translateX(-105%);
-      transition: transform .22s ease;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .drawer.open { transform: translateX(0); }
-
-    .drawer-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .drawer-title {
-      font-size: 22px;
-      font-weight: 900;
-    }
-
-    .close-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.08);
-      color: white;
-      font-size: 24px;
-    }
-
-    .field { margin: 14px 0; }
-    .field label {
-      display: block;
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--muted);
-      margin: 0 0 7px;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-    }
-
-    select, input[type="range"] {
-      width: 100%;
-      min-height: 46px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: #111827;
-      color: white;
-      padding: 0 12px;
-      font-size: 16px;
-    }
-
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-    .test-btn {
-      width: 100%;
-      height: 48px;
-      margin-top: 10px;
-      border: 0;
-      border-radius: 14px;
-      color: white;
-      background: linear-gradient(180deg, #475569, #334155);
-      font-size: 16px;
-      font-weight: 850;
-    }
-
-    .hint {
-      margin-top: 12px;
-      font-size: 13px;
-      line-height: 1.35;
-      color: var(--muted);
-    }
-
-    .status {
-      position: fixed;
-      left: 50%;
-      bottom: calc(14px + env(safe-area-inset-bottom));
-      z-index: 45;
-      transform: translateX(-50%);
-      max-width: 70vw;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: rgba(0,0,0,.55);
-      color: white;
-      font-weight: 800;
-      font-size: 14px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .15s ease;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .status.show { opacity: 1; }
-
-    @media (orientation: portrait) {
-      .app::before {
-        content: "Поверни телефон горизонтально";
-        position: fixed;
-        z-index: 90;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        padding: 24px;
-        text-align: center;
-        font-size: 28px;
-        font-weight: 900;
-        background: #0d1117;
-        color: white;
-      }
-    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:Arial, Helvetica, sans-serif;color:var(--black)}
+    body{position:fixed;inset:0}
+    .app{position:relative;width:100vw;height:100vh;background:var(--bg);overflow:hidden;transform-origin:top left}
+    .board{position:absolute;left:0;top:0;width:1600px;height:900px;background:var(--bg)}
+    button{position:absolute;border:0;border-radius:22px;font-weight:900;text-transform:uppercase;text-align:center;line-height:1.08;font-size:26px;padding:0 14px;display:flex;align-items:center;justify-content:center;color:var(--black);box-shadow:none;cursor:pointer;user-select:none;-webkit-user-select:none}
+    button:active{transform:scale(.96);filter:brightness(.92)}
+    .top{background:var(--purple);color:var(--white);font-size:24px;border-radius:20px}
+    .red{background:var(--red);color:var(--white)} .red2{background:var(--red2);color:var(--white)} .red3{background:var(--red3);color:var(--white)}
+    .blue{background:var(--blue)} .blue2{background:var(--blue2)} .blue3{background:var(--blue3)}
+    .green{background:var(--green)} .green2{background:var(--green2)} .green3{background:var(--green3)}
+    .yellow{background:var(--yellow)} .yellow2{background:var(--yellow2)} .yellow3{background:var(--yellow3)}
+    .gray{background:var(--gray)} .white{background:#fff}
+    .pill{border-radius:18px}
+    .vertical{writing-mode:vertical-rl;text-orientation:mixed}
+    .small{font-size:22px}.mid{font-size:24px}.big{font-size:28px}
+    #rotateHint{display:none;position:fixed;inset:0;background:#111;color:white;z-index:20;align-items:center;justify-content:center;text-align:center;font:800 26px/1.25 Arial;padding:30px}
+    .settingsToggle{position:fixed;left:12px;bottom:12px;z-index:12;width:58px;height:58px;border-radius:18px;background:#111;color:#fff;font:900 26px Arial;border:0;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.22);text-transform:none;padding:0}
+    .settingsToggle:active{transform:scale(.96)}
+    .voicePanel{position:fixed;left:12px;bottom:82px;z-index:11;background:rgba(255,255,255,.96);border:1px solid rgba(0,0,0,.18);border-radius:18px;padding:14px;display:none;gap:10px;align-items:center;font:800 16px Arial;color:#111;box-shadow:0 8px 28px rgba(0,0,0,.18)}
+    .voicePanel.open{display:flex}
+    .voicePanel select,.voicePanel button{position:static;width:auto;height:48px;border-radius:12px;border:1px solid rgba(0,0,0,.22);background:#fff;color:#111;font:800 16px Arial;text-transform:none;padding:0 12px;display:block}
+    .voicePanel button{background:#111;color:#fff}
+    .voicePanel .closeSettings{background:#eee;color:#111;width:48px;padding:0;font-size:24px}
+    @media (orientation:portrait){#rotateHint{display:flex}.app{display:none}.voicePanel,.settingsToggle{display:none}}
   </style>
 </head>
 <body>
-  <main class="app">
-    <section class="stage" aria-label="FPV voice command panel">
-      <div class="axis throttle">
-        <div class="axis-title">THROTTLE</div>
-        <div class="vgrid">
-          <button class="cmd green" data-key="throttle_up_small">Трохи більше<br>газу<span class="small-label">+ chico</span></button>
-          <button class="cmd green" data-key="throttle_up_medium">Більше<br>газу<span class="small-label">+ mediano</span></button>
-          <button class="cmd green" data-key="throttle_up_big">Сильно більше<br>газу<span class="small-label">+ grande</span></button>
-          <button class="cmd red" data-key="throttle_down_small">Трохи менше<br>газу<span class="small-label">- chico</span></button>
-          <button class="cmd red" data-key="throttle_down_medium">Менше<br>газу<span class="small-label">- mediano</span></button>
-          <button class="cmd red" data-key="throttle_down_big">Сильно менше<br>газу<span class="small-label">- grande</span></button>
-        </div>
-      </div>
+  <div id="rotateHint">Поверни телефон горизонтально</div>
+  <main class="app" id="app"><section class="board" id="board"></section></main>
+  <button class="settingsToggle" id="settingsToggle" type="button" aria-label="Налаштування">⚙</button>
+  <div class="voicePanel" id="voicePanel">
+    <label for="languageSelect">Мова</label>
+    <select id="languageSelect">
+      <option value="uk-UA">Українська</option><option value="en-US">English</option><option value="es-ES" selected>Español</option><option value="fr-FR">Français</option><option value="de-DE">Deutsch</option><option value="it-IT">Italiano</option><option value="pt-PT">Português</option><option value="nl-NL">Nederlands</option><option value="pl-PL">Polski</option><option value="cs-CZ">Čeština</option><option value="sk-SK">Slovenčina</option><option value="sl-SI">Slovenščina</option><option value="hr-HR">Hrvatski</option><option value="sr-RS">Srpski</option><option value="bs-BA">Bosanski</option><option value="ro-RO">Română</option><option value="hu-HU">Magyar</option><option value="et-EE">Eesti</option><option value="lv-LV">Latviešu</option><option value="lt-LT">Lietuvių</option><option value="fi-FI">Suomi</option><option value="sv-SE">Svenska</option><option value="nb-NO">Norsk</option><option value="da-DK">Dansk</option><option value="is-IS">Íslenska</option><option value="el-GR">Ελληνικά</option><option value="tr-TR">Türkçe</option><option value="ko-KR">한국어</option><option value="ja-JP">日本語</option><option value="zh-CN">中文（简体）</option><option value="zh-TW">中文（繁體）</option>
+    </select>
+    <label for="voiceMode">Голос</label>
+    <select id="voiceMode">
+      <option value="auto">Auto</option>
+      <option value="male" selected>Чоловічий</option>
+      <option value="female">Жіночий</option>
+    </select>
+    <select id="voiceSelect" title="Системний голос"></select>
+    <button id="testVoice" type="button">Тест</button>
+    <button class="closeSettings" id="closeSettings" type="button" aria-label="Закрити">×</button>
+  </div>
 
-      <div class="axis yaw">
-        <div class="axis-title">YAW</div>
-        <div class="hgrid">
-          <button class="cmd blue" data-key="yaw_left_big">Ліворуч<br>сильно</button>
-          <button class="cmd blue" data-key="yaw_left_medium">Ліворуч<br>більше</button>
-          <button class="cmd blue" data-key="yaw_left_small">Ліворуч<br>трохи</button>
-          <button class="cmd orange" data-key="yaw_right_small">Праворуч<br>трохи</button>
-          <button class="cmd orange" data-key="yaw_right_medium">Праворуч<br>більше</button>
-          <button class="cmd orange" data-key="yaw_right_big">Праворуч<br>сильно</button>
-        </div>
-      </div>
+<script>
+const board = document.getElementById('board');
 
-      <div class="axis roll">
-        <div class="axis-title">ROLL</div>
-        <div class="hgrid">
-          <button class="cmd blue" data-key="roll_left_big">Ліворуч<br>сильно</button>
-          <button class="cmd blue" data-key="roll_left_medium">Ліворуч<br>більше</button>
-          <button class="cmd blue" data-key="roll_left_small">Ліворуч<br>трохи</button>
-          <button class="cmd orange" data-key="roll_right_small">Праворуч<br>трохи</button>
-          <button class="cmd orange" data-key="roll_right_medium">Праворуч<br>більше</button>
-          <button class="cmd orange" data-key="roll_right_big">Праворуч<br>сильно</button>
-        </div>
-      </div>
+const buttons = [
+  // top bar
+  [36,55,92,118,'ARM','top','Armar.'],
+  [143,55,132,118,'DISARM','top','Desarmar.'],
+  [296,55,215,118,'ПОТУЖНІСТЬ\nVTX','top','Potencia VTX.'],
+  [528,55,192,118,'БАТАРЕЯ','top','Batería.'],
+  [735,55,190,118,'КАМЕРА 0','top','Cámara cero.'],
+  [938,55,187,118,'КАМЕРА 45','top','Cámara cuarenta y cinco.'],
+  [1140,55,188,118,'КАМЕРА 90','top','Cámara noventa.'],
+  [1345,55,245,118,'ІНВЕРСІЯ\nКЕРУВАННЯ','top','Inversión de control.'],
 
-      <div class="axis pitch">
-        <div class="axis-title">PITCH</div>
-        <div class="vgrid">
-          <button class="cmd green" data-key="pitch_up_small">Вгору<br>трохи<span class="small-label">arriba chico</span></button>
-          <button class="cmd green" data-key="pitch_up_medium">Вгору<br>більше<span class="small-label">arriba mediano</span></button>
-          <button class="cmd green" data-key="pitch_up_big">Вгору<br>сильно<span class="small-label">arriba grande</span></button>
-          <button class="cmd red" data-key="pitch_down_small">Вниз<br>трохи<span class="small-label">abajo chico</span></button>
-          <button class="cmd red" data-key="pitch_down_medium">Вниз<br>більше<span class="small-label">abajo mediano</span></button>
-          <button class="cmd red" data-key="pitch_down_big">Вниз<br>сильно<span class="small-label">abajo grande</span></button>
-        </div>
-      </div>
-    </section>
+  // left red throttle urgent
+  [36,213,246,116,'МИ ПАДАЄМО\nДАЙ ГАЗ ВГОРУ','red','Estamos cayendo. Throttle más fuerte.'],
+  [36,346,246,116,'ДРОН ТРЯСЕ\nTHROTTLE ВГОРУ','red','El drone tiembla. Throttle arriba.'],
 
-    <button class="settings-btn" id="settingsBtn" aria-label="Settings">⚙</button>
-    <div class="status" id="status"></div>
-  </main>
+  // throttle block
+  [313,213,137,66,'','red','Throttle arriba grande.'],
+  [313,303,137,66,'','red2','Throttle arriba mediano.'],
+  [313,392,137,66,'','red3','Throttle arriba chico.'],
+  [473,213,246,116,'THROTTLE\n90','red','Throttle noventa.'],
+  [473,342,246,116,'THROTTLE\n60','red2','Throttle sesenta.'],
+  [313,635,137,66,'','red3','Throttle abajo chico.'],
+  [313,724,137,66,'','gray','Throttle abajo mediano.'],
+  [313,814,137,66,'','white','Throttle abajo grande.'],
+  [473,768,246,116,'ПОВІЛЬНО ВНИЗ\nTHROTTLE','gray','Throttle abajo despacio.'],
+  [747,213,132,116,'МАЛО\nTHROTTLE','gray','Poco throttle.'],
+  [747,346,132,116,'БАГАТО\nTHROTTLE','gray','Mucho throttle.'],
 
-  <div class="drawer-backdrop" id="backdrop"></div>
-  <aside class="drawer" id="drawer" aria-label="Settings panel">
-    <div class="drawer-head">
-      <div class="drawer-title">Налаштування</div>
-      <button class="close-btn" id="closeBtn" aria-label="Close">×</button>
-    </div>
+  // yaw/roll blue
+  [36,478,68,136,'','blue','Yaw izquierda grande.'],
+  [127,478,68,136,'','blue2','Yaw izquierda mediano.'],
+  [218,478,68,136,'','blue3','Yaw izquierda chico.'],
+  [36,635,247,116,'ПОВЕРТАЄМО\nЛІВОРУЧ','blue2','Yaw izquierda mediano.'],
+  [473,478,68,136,'','blue3','Yaw derecha chico.'],
+  [563,478,68,136,'','blue2','Yaw derecha mediano.'],
+  [653,478,68,136,'','blue','Yaw derecha grande.'],
+  [473,635,247,116,'ПОВЕРТАЄМО\nПРАВОРУЧ','blue2','Yaw derecha mediano.'],
+  [36,768,246,116,'НЕ НАБИРАЙ\nШВИДКО ВИСОТУ','gray','No subas muy rápido.'],
 
-    <div class="field">
-      <label for="languageSelect">Мова озвучення</label>
-      <select id="languageSelect"></select>
-    </div>
+  // altitude gray
+  [747,489,132,116,'ВИСОТА\n500','gray','Altura quinientos.'],
+  [747,635,132,116,'ВИСОТА\n300','gray','Altura trescientos.'],
+  [747,768,132,116,'ВИСОТА\n200','gray','Altura doscientos.'],
 
-    <div class="field">
-      <label for="genderSelect">Голос</label>
-      <select id="genderSelect">
-        <option value="auto">Auto</option>
-        <option value="male" selected>Чоловічий</option>
-        <option value="female">Жіночий</option>
-      </select>
-    </div>
+  // center green/yellow commands
+  [908,213,246,116,'ТРИМАЙ ВИСОТУ','green2','Mantén la altura.'],
+  [908,342,246,116,'НЕ ЛІТАЙ ЗАДОМ','green2','No vueles hacia atrás.'],
+  [908,635,246,116,'ВИРІВНЯЙ\nГОРИЗОНТ','yellow2','Nivela el horizonte.'],
+  [908,768,246,116,'ПІДНІМИ НІС\nДРОНА','green2','Pitch arriba. Sube la nariz del drone.'],
 
-    <div class="field">
-      <label for="voiceSelect">Доступні системні голоси</label>
-      <select id="voiceSelect"></select>
-    </div>
+  // pitch green/yellow
+  [1185,213,137,66,'','green','Pitch arriba grande.'],
+  [1185,303,137,66,'','green2','Pitch arriba mediano.'],
+  [1185,392,137,66,'','green3','Pitch arriba chico.'],
+  [1185,635,137,66,'','green3','Pitch abajo chico.'],
+  [1185,724,137,66,'','green2','Pitch abajo mediano.'],
+  [1185,814,137,66,'','green','Pitch abajo grande.'],
 
-    <div class="row">
-      <div class="field">
-        <label for="rateRange">Швидкість</label>
-        <input id="rateRange" type="range" min="0.65" max="1.25" value="0.9" step="0.05" />
-      </div>
-      <div class="field">
-        <label for="volumeRange">Гучність</label>
-        <input id="volumeRange" type="range" min="0" max="1" value="1" step="0.05" />
-      </div>
-    </div>
+  // right pitch block
+  [1342,213,247,116,'ТРЕБА\nЛЕТІТИ ВПЕРЕД','gray','Hay que volar hacia adelante.'],
+  [1342,342,247,116,'PITCH\nВПЕРЕД','green2','Pitch adelante.'],
+  [1342,478,68,136,'','yellow3','Roll derecha chico.'],
+  [1432,478,68,136,'','yellow2','Roll derecha mediano.'],
+  [1523,478,68,136,'','yellow','Roll derecha grande.'],
+  [1342,635,247,116,'ДРОН НАХИЛЕНИЙ','gray','El drone está inclinado.'],
+  [1342,768,247,116,'PITCH\nНАЗАД','green2','Pitch atrás.'],
+  [908,478,68,136,'','yellow','Roll izquierda grande.'],
+  [998,478,68,136,'','yellow2','Roll izquierda mediano.'],
+  [1088,478,68,136,'','yellow3','Roll izquierda chico.'],
+];
 
-    <button class="test-btn" id="testBtn">Тест голосу</button>
-    <div class="hint">
-      На iPhone якість залежить від встановлених системних голосів. Для кращого звуку відкрий iOS Settings → Accessibility → Spoken Content → Voices і завантаж потрібні голоси.
-    </div>
-  </aside>
-  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+function makeButton([x,y,w,h,label,cls,say]){
+  const b=document.createElement('button');
+  b.style.left=x+'px';b.style.top=y+'px';b.style.width=w+'px';b.style.height=h+'px';
+  b.className=cls;
+  b.innerText=label;
+  b.dataset.say=say;
+  b.addEventListener('click',()=>speak(say));
+  board.appendChild(b);
+}
+buttons.forEach(makeButton);
 
-  <script>
-    const LANGUAGES = [
-      { code: 'es-ES', label: 'Spanish / Español' },
-      { code: 'uk-UA', label: 'Українська' },
-      { code: 'en-US', label: 'English' },
-      { code: 'fr-FR', label: 'Français' },
-      { code: 'de-DE', label: 'Deutsch' },
-      { code: 'sq-AL', label: 'Albanian / Shqip' },
-      { code: 'hy-AM', label: 'Armenian / Հայերեն' },
-      { code: 'az-AZ', label: 'Azerbaijani / Azərbaycan' },
-      { code: 'eu-ES', label: 'Basque / Euskara' },
-      { code: 'be-BY', label: 'Belarusian / Беларуская' },
-      { code: 'bs-BA', label: 'Bosnian / Bosanski' },
-      { code: 'bg-BG', label: 'Bulgarian / Български' },
-      { code: 'ca-ES', label: 'Catalan / Català' },
-      { code: 'hr-HR', label: 'Croatian / Hrvatski' },
-      { code: 'cs-CZ', label: 'Czech / Čeština' },
-      { code: 'da-DK', label: 'Danish / Dansk' },
-      { code: 'nl-NL', label: 'Dutch / Nederlands' },
-      { code: 'et-EE', label: 'Estonian / Eesti' },
-      { code: 'fi-FI', label: 'Finnish / Suomi' },
-      { code: 'el-GR', label: 'Greek / Ελληνικά' },
-      { code: 'hu-HU', label: 'Hungarian / Magyar' },
-      { code: 'is-IS', label: 'Icelandic / Íslenska' },
-      { code: 'ga-IE', label: 'Irish / Gaeilge' },
-      { code: 'it-IT', label: 'Italian / Italiano' },
-      { code: 'lv-LV', label: 'Latvian / Latviešu' },
-      { code: 'lt-LT', label: 'Lithuanian / Lietuvių' },
-      { code: 'lb-LU', label: 'Luxembourgish / Lëtzebuergesch' },
-      { code: 'mk-MK', label: 'Macedonian / Македонски' },
-      { code: 'mt-MT', label: 'Maltese / Malti' },
-      { code: 'no-NO', label: 'Norwegian / Norsk' },
-      { code: 'pl-PL', label: 'Polish / Polski' },
-      { code: 'pt-PT', label: 'Portuguese / Português' },
-      { code: 'ro-RO', label: 'Romanian / Română' },
-      { code: 'sr-RS', label: 'Serbian / Српски' },
-      { code: 'sk-SK', label: 'Slovak / Slovenčina' },
-      { code: 'sl-SI', label: 'Slovenian / Slovenščina' },
-      { code: 'sv-SE', label: 'Swedish / Svenska' },
-      { code: 'tr-TR', label: 'Turkish / Türkçe' },
-      { code: 'cy-GB', label: 'Welsh / Cymraeg' },
-      { code: 'ko-KR', label: 'Korean / 한국어' },
-      { code: 'ja-JP', label: 'Japanese / 日本語' },
-      { code: 'zh-CN', label: 'Chinese / 中文' }
-    ];
+function fit(){
+  const app=document.getElementById('app');
+  const scale=Math.min(window.innerWidth/1600, window.innerHeight/900);
+  board.style.transform=`scale(${scale})`;
+  board.style.transformOrigin='top left';
+  board.style.left=((window.innerWidth-1600*scale)/2)+'px';
+  board.style.top=((window.innerHeight-900*scale)/2)+'px';
+}
+window.addEventListener('resize',fit);fit();
 
-    const COMMANDS = {
-      'es-ES': {
-        throttle_up_small: 'Throttle más chico', throttle_up_medium: 'Throttle más mediano', throttle_up_big: 'Throttle más grande',
-        throttle_down_small: 'Throttle menos chico', throttle_down_medium: 'Throttle menos mediano', throttle_down_big: 'Throttle menos grande',
-        yaw_left_big: 'Yaw izquierda grande', yaw_left_medium: 'Yaw izquierda mediano', yaw_left_small: 'Yaw izquierda chico',
-        yaw_right_small: 'Yaw derecha chico', yaw_right_medium: 'Yaw derecha mediano', yaw_right_big: 'Yaw derecha grande',
-        roll_left_big: 'Roll izquierda grande', roll_left_medium: 'Roll izquierda mediano', roll_left_small: 'Roll izquierda chico',
-        roll_right_small: 'Roll derecha chico', roll_right_medium: 'Roll derecha mediano', roll_right_big: 'Roll derecha grande',
-        pitch_up_small: 'Pitch arriba chico', pitch_up_medium: 'Pitch arriba mediano', pitch_up_big: 'Pitch arriba grande',
-        pitch_down_small: 'Pitch abajo chico', pitch_down_medium: 'Pitch abajo mediano', pitch_down_big: 'Pitch abajo grande',
-        test: 'Yaw derecha grande'
-      },
-      'uk-UA': {
-        throttle_up_small: 'Throttle трохи більше', throttle_up_medium: 'Throttle більше', throttle_up_big: 'Throttle сильно більше',
-        throttle_down_small: 'Throttle трохи менше', throttle_down_medium: 'Throttle менше', throttle_down_big: 'Throttle сильно менше',
-        yaw_left_big: 'Yaw сильно ліворуч', yaw_left_medium: 'Yaw більше ліворуч', yaw_left_small: 'Yaw трохи ліворуч',
-        yaw_right_small: 'Yaw трохи праворуч', yaw_right_medium: 'Yaw більше праворуч', yaw_right_big: 'Yaw сильно праворуч',
-        roll_left_big: 'Roll сильно ліворуч', roll_left_medium: 'Roll більше ліворуч', roll_left_small: 'Roll трохи ліворуч',
-        roll_right_small: 'Roll трохи праворуч', roll_right_medium: 'Roll більше праворуч', roll_right_big: 'Roll сильно праворуч',
-        pitch_up_small: 'Pitch трохи вгору', pitch_up_medium: 'Pitch більше вгору', pitch_up_big: 'Pitch сильно вгору',
-        pitch_down_small: 'Pitch трохи вниз', pitch_down_medium: 'Pitch більше вниз', pitch_down_big: 'Pitch сильно вниз',
-        test: 'Yaw сильно праворуч'
-      },
-      'en-US': {
-        throttle_up_small: 'Throttle up small', throttle_up_medium: 'Throttle up medium', throttle_up_big: 'Throttle up large',
-        throttle_down_small: 'Throttle down small', throttle_down_medium: 'Throttle down medium', throttle_down_big: 'Throttle down large',
-        yaw_left_big: 'Yaw left large', yaw_left_medium: 'Yaw left medium', yaw_left_small: 'Yaw left small',
-        yaw_right_small: 'Yaw right small', yaw_right_medium: 'Yaw right medium', yaw_right_big: 'Yaw right large',
-        roll_left_big: 'Roll left large', roll_left_medium: 'Roll left medium', roll_left_small: 'Roll left small',
-        roll_right_small: 'Roll right small', roll_right_medium: 'Roll right medium', roll_right_big: 'Roll right large',
-        pitch_up_small: 'Pitch up small', pitch_up_medium: 'Pitch up medium', pitch_up_big: 'Pitch up large',
-        pitch_down_small: 'Pitch down small', pitch_down_medium: 'Pitch down medium', pitch_down_big: 'Pitch down large',
-        test: 'Yaw right large'
-      }
-    };
+let voices=[];
+const voiceMode=document.getElementById('voiceMode');
+const languageSelect=document.getElementById('languageSelect');
+const voiceSelect=document.getElementById('voiceSelect');
+const testVoice=document.getElementById('testVoice');
+const settingsToggle=document.getElementById('settingsToggle');
+const voicePanel=document.getElementById('voicePanel');
+const closeSettings=document.getElementById('closeSettings');
+settingsToggle.addEventListener('click',()=>voicePanel.classList.toggle('open'));
+closeSettings.addEventListener('click',()=>voicePanel.classList.remove('open'));
 
-    const SIMPLE_WORDS = {
-      'fr': { left:'gauche', right:'droite', up:'haut', down:'bas', small:'petit', medium:'moyen', big:'grand', more:'plus', less:'moins' },
-      'de': { left:'links', right:'rechts', up:'hoch', down:'runter', small:'klein', medium:'mittel', big:'groß', more:'mehr', less:'weniger' },
-      'it': { left:'sinistra', right:'destra', up:'su', down:'giù', small:'piccolo', medium:'medio', big:'grande', more:'più', less:'meno' },
-      'pt': { left:'esquerda', right:'direita', up:'cima', down:'baixo', small:'pequeno', medium:'médio', big:'grande', more:'mais', less:'menos' },
-      'pl': { left:'lewo', right:'prawo', up:'góra', down:'dół', small:'mały', medium:'średni', big:'duży', more:'więcej', less:'mniej' },
-      'ja': { left:'左', right:'右', up:'上', down:'下', small:'小さく', medium:'中くらい', big:'大きく', more:'もっと', less:'少なく' },
-      'ko': { left:'왼쪽', right:'오른쪽', up:'위로', down:'아래로', small:'작게', medium:'중간', big:'크게', more:'더', less:'덜' },
-      'zh': { left:'左', right:'右', up:'上', down:'下', small:'小', medium:'中', big:'大', more:'更多', less:'更少' }
-    };
+function currentLangPrefix(){return languageSelect.value.split('-')[0].toLowerCase();}
+function isSpanishVoice(v){return (v.lang||'').toLowerCase().startsWith(currentLangPrefix());}
+function isMaleVoice(v){ return /jorge|diego|carlos|juan|pablo|miguel|antonio|male|hombre|mascul/i.test(v.name || ''); }
+function isFemaleVoice(v){ return /paulina|monica|mónica|luciana|marisol|samantha|female|mujer|fem/i.test(v.name || ''); }
 
-    let voices = [];
-    let selectedVoiceName = '';
-    const languageSelect = document.getElementById('languageSelect');
-    const genderSelect = document.getElementById('genderSelect');
-    const voiceSelect = document.getElementById('voiceSelect');
-    const rateRange = document.getElementById('rateRange');
-    const volumeRange = document.getElementById('volumeRange');
-    const statusEl = document.getElementById('status');
-    const drawer = document.getElementById('drawer');
-    const drawerBackdrop = document.getElementById('drawerBackdrop');
+function loadVoices(){
+  voices=(speechSynthesis.getVoices()||[]).filter(isSpanishVoice);
+  renderVoiceSelect();
+}
 
-    function initLanguages() {
-      languageSelect.innerHTML = LANGUAGES.map(l => `<option value="${l.code}">${l.label}</option>`).join('');
-      languageSelect.value = localStorage.getItem('fpv-language') || 'es-ES';
-    }
+function renderVoiceSelect(){
+  const current=voiceSelect.value;
+  voiceSelect.innerHTML='';
+  const auto=document.createElement('option');
+  auto.value='';
+  auto.textContent='Auto Spanish';
+  voiceSelect.appendChild(auto);
+  voices.forEach((v,i)=>{
+    const o=document.createElement('option');
+    o.value=String(i);
+    o.textContent=`${v.name} · ${v.lang}`;
+    voiceSelect.appendChild(o);
+  });
+  if([...voiceSelect.options].some(o=>o.value===current)) voiceSelect.value=current;
+}
 
-    function loadVoices() {
-      voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
-      updateVoiceList();
-    }
+loadVoices();
+if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged=loadVoices;
 
-    function scoreVoice(voice, langCode, gender) {
-      const name = (voice.name || '').toLowerCase();
-      const lang = (voice.lang || '').toLowerCase();
-      const base = langCode.toLowerCase().split('-')[0];
-      let score = 0;
-      if (lang === langCode.toLowerCase()) score += 100;
-      if (lang.startsWith(base)) score += 60;
-      if (voice.localService) score += 8;
-      const maleHints = ['jorge','diego','carlos','juan','paul','daniel','thomas','mark','alex','male','homme','männlich','hombre'];
-      const femaleHints = ['monica','mónica','paulina','maria','anna','samantha','sara','female','femme','weiblich','mujer'];
-      if (gender === 'male' && maleHints.some(h => name.includes(h))) score += 35;
-      if (gender === 'female' && femaleHints.some(h => name.includes(h))) score += 35;
-      return score;
-    }
+function pickSpanishVoice(){
+  const selectedIndex=voiceSelect.value;
+  if(selectedIndex !== '' && voices[Number(selectedIndex)]) return voices[Number(selectedIndex)];
 
-    function updateVoiceList() {
-      const langCode = languageSelect.value;
-      const base = langCode.split('-')[0].toLowerCase();
-      const matched = voices.filter(v => (v.lang || '').toLowerCase().startsWith(base));
-      const list = matched.length ? matched : voices;
-      voiceSelect.innerHTML = '';
-      if (!list.length) {
-        voiceSelect.innerHTML = '<option value="">Системні голоси ще завантажуються</option>';
-        return;
-      }
-      list.forEach(v => {
-        const opt = document.createElement('option');
-        opt.value = v.name;
-        opt.textContent = `${v.name} — ${v.lang}`;
-        voiceSelect.appendChild(opt);
-      });
-      const saved = localStorage.getItem('fpv-voice-name');
-      if (saved && list.some(v => v.name === saved)) {
-        voiceSelect.value = saved;
-        selectedVoiceName = saved;
-        return;
-      }
-      const gender = genderSelect.value;
-      const best = [...list].sort((a,b) => scoreVoice(b, langCode, gender) - scoreVoice(a, langCode, gender))[0];
-      if (best) {
-        voiceSelect.value = best.name;
-        selectedVoiceName = best.name;
-      }
-    }
+  const mode=voiceMode.value;
+  if(mode==='male'){
+    return voices.find(isMaleVoice) || voices.find(v=>!isFemaleVoice(v)) || voices[0] || null;
+  }
+  if(mode==='female'){
+    return voices.find(isFemaleVoice) || voices[0] || null;
+  }
+  return voices[0] || null;
+}
 
-    function getVoice() {
-      return voices.find(v => v.name === selectedVoiceName) || null;
-    }
+function speak(text){
+  if (!('speechSynthesis' in window)) { alert('Speech synthesis is not supported'); return; }
+  loadVoices();
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=languageSelect.value;
+  u.rate=0.96;
+  u.pitch=0.88;
+  u.volume=1;
+  const v=pickSpanishVoice();
+  if(v) u.voice=v;
+  speechSynthesis.speak(u);
+}
 
-    function getCommandText(key) {
-      const lang = languageSelect.value;
-      if (COMMANDS[lang] && COMMANDS[lang][key]) return COMMANDS[lang][key];
-      const base = lang.split('-')[0];
-      const w = SIMPLE_WORDS[base] || SIMPLE_WORDS['fr'];
-      const map = {
-        throttle_up_small: `Throttle ${w.more} ${w.small}`,
-        throttle_up_medium: `Throttle ${w.more} ${w.medium}`,
-        throttle_up_big: `Throttle ${w.more} ${w.big}`,
-        throttle_down_small: `Throttle ${w.less} ${w.small}`,
-        throttle_down_medium: `Throttle ${w.less} ${w.medium}`,
-        throttle_down_big: `Throttle ${w.less} ${w.big}`,
-        yaw_left_big: `Yaw ${w.left} ${w.big}`,
-        yaw_left_medium: `Yaw ${w.left} ${w.medium}`,
-        yaw_left_small: `Yaw ${w.left} ${w.small}`,
-        yaw_right_small: `Yaw ${w.right} ${w.small}`,
-        yaw_right_medium: `Yaw ${w.right} ${w.medium}`,
-        yaw_right_big: `Yaw ${w.right} ${w.big}`,
-        roll_left_big: `Roll ${w.left} ${w.big}`,
-        roll_left_medium: `Roll ${w.left} ${w.medium}`,
-        roll_left_small: `Roll ${w.left} ${w.small}`,
-        roll_right_small: `Roll ${w.right} ${w.small}`,
-        roll_right_medium: `Roll ${w.right} ${w.medium}`,
-        roll_right_big: `Roll ${w.right} ${w.big}`,
-        pitch_up_small: `Pitch ${w.up} ${w.small}`,
-        pitch_up_medium: `Pitch ${w.up} ${w.medium}`,
-        pitch_up_big: `Pitch ${w.up} ${w.big}`,
-        pitch_down_small: `Pitch ${w.down} ${w.small}`,
-        pitch_down_medium: `Pitch ${w.down} ${w.medium}`,
-        pitch_down_big: `Pitch ${w.down} ${w.big}`,
-        test: `Yaw ${w.right} ${w.big}`
-      };
-      return map[key] || key;
-    }
+testVoice.addEventListener('click',()=>speak('Yaw derecha grande.'));
+voiceMode.addEventListener('change',()=>speak('Pitch arriba mediano.'));
+voiceSelect.addEventListener('change',()=>speak('Throttle más fuerte.'));
 
-    function speak(text) {
-      if (!('speechSynthesis' in window)) {
-        showStatus('SpeechSynthesis не підтримується');
-        return;
-      }
-      speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = languageSelect.value;
-      u.rate = Number(rateRange.value);
-      u.pitch = 0.95;
-      u.volume = Number(volumeRange.value);
-      const voice = getVoice();
-      if (voice) u.voice = voice;
-      speechSynthesis.speak(u);
-      showStatus(text);
-    }
-
-    let statusTimer;
-    function showStatus(text) {
-      statusEl.textContent = text;
-      statusEl.classList.add('show');
-      clearTimeout(statusTimer);
-      statusTimer = setTimeout(() => statusEl.classList.remove('show'), 1300);
-    }
-
-    function openDrawer() {
-      drawer.classList.add('open');
-      drawerBackdrop.classList.add('open');
-    }
-
-    function closeDrawer() {
-      drawer.classList.remove('open');
-      drawerBackdrop.classList.remove('open');
-    }
-
-    document.querySelectorAll('button.cmd').forEach(btn => {
-      btn.addEventListener('click', () => speak(getCommandText(btn.dataset.key)));
-    });
-
-    document.getElementById('settingsBtn').addEventListener('click', openDrawer);
-    document.getElementById('closeBtn').addEventListener('click', closeDrawer);
-    drawerBackdrop.addEventListener('click', closeDrawer);
-    document.getElementById('testBtn').addEventListener('click', () => speak(getCommandText('test')));
-
-    languageSelect.addEventListener('change', () => {
-      localStorage.setItem('fpv-language', languageSelect.value);
-      localStorage.removeItem('fpv-voice-name');
-      selectedVoiceName = '';
-      updateVoiceList();
-    });
-
-    genderSelect.addEventListener('change', () => {
-      localStorage.setItem('fpv-gender', genderSelect.value);
-      localStorage.removeItem('fpv-voice-name');
-      selectedVoiceName = '';
-      updateVoiceList();
-    });
-
-    voiceSelect.addEventListener('change', () => {
-      selectedVoiceName = voiceSelect.value;
-      localStorage.setItem('fpv-voice-name', selectedVoiceName);
-    });
-
-    rateRange.addEventListener('input', () => localStorage.setItem('fpv-rate', rateRange.value));
-    volumeRange.addEventListener('input', () => localStorage.setItem('fpv-volume', volumeRange.value));
-
-    initLanguages();
-    genderSelect.value = localStorage.getItem('fpv-gender') || 'male';
-    rateRange.value = localStorage.getItem('fpv-rate') || '0.9';
-    volumeRange.value = localStorage.getItem('fpv-volume') || '1';
-    loadVoices();
-    if ('speechSynthesis' in window) {
-      speechSynthesis.onvoiceschanged = loadVoices;
-      setTimeout(loadVoices, 250);
-      setTimeout(loadVoices, 1000);
-    }
-  </script>
+// unlock iOS voices on first touch
+window.addEventListener('touchstart',()=>{loadVoices();},{once:true});
+</script>
 </body>
 </html>
