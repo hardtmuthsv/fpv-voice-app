@@ -72,6 +72,11 @@
     <select id="voiceSelect" title="Системний голос"></select>
     <button id="testVoice" type="button">Тест</button>
     <button id="testMp3" type="button">▶ Test MP3</button>
+    <button class="ttsBenchmark" data-audio-src="audio/uk-UA/test-speed-100.mp3" type="button">▶ Test 1.00</button>
+    <button class="ttsBenchmark" data-audio-src="audio/uk-UA/test-speed-110.mp3" type="button">▶ Test 1.10</button>
+    <button class="ttsBenchmark" data-audio-src="audio/uk-UA/test-speed-120.mp3" type="button">▶ Test 1.20</button>
+    <button class="ttsBenchmark" data-audio-src="audio/uk-UA/test-speed-130.mp3" type="button">▶ Test 1.30</button>
+    <button class="ttsBenchmark" data-audio-src="audio/uk-UA/test-speed-140.mp3" type="button">▶ Test 1.40</button>
   </div>
 
 <script src="commands.js"></script>
@@ -177,8 +182,8 @@ function speakCommand(commandId){
 }
 
 testVoice.addEventListener('click',()=>speakCommand('yaw_right_large'));
-testMp3.addEventListener('click',()=>{
-  const audio=new Audio('audio/uk-UA/test.mp3');
+function playAudioFile(src){
+  const audio=new Audio(src);
   let shown=false;
   const showMissing=()=>{
     if(shown) return;
@@ -187,6 +192,13 @@ testMp3.addEventListener('click',()=>{
   };
   audio.addEventListener('error',showMissing,{once:true});
   audio.play().catch(showMissing);
+}
+
+testMp3.addEventListener('click',()=>{
+  playAudioFile('audio/uk-UA/test.mp3');
+});
+document.querySelectorAll('.ttsBenchmark').forEach(button=>{
+  button.addEventListener('click',()=>playAudioFile(button.dataset.audioSrc));
 });
 languageSelect.addEventListener('change',()=>{
   localStorage.setItem('fpvVoiceLanguage', languageSelect.value);
