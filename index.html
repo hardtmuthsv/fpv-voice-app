@@ -71,6 +71,7 @@
     <label for="voiceSelect">Системний голос</label>
     <select id="voiceSelect" title="Системний голос"></select>
     <button id="testVoice" type="button">Тест</button>
+    <button id="testMp3" type="button">▶ Test MP3</button>
   </div>
 
 <script src="commands.js"></script>
@@ -96,6 +97,7 @@ const languageSelect=document.getElementById('languageSelect');
 const voiceMode=document.getElementById('voiceMode');
 const voiceSelect=document.getElementById('voiceSelect');
 const testVoice=document.getElementById('testVoice');
+const testMp3=document.getElementById('testMp3');
 const settingsToggle=document.getElementById('settingsToggle');
 const voicePanel=document.getElementById('voicePanel');
 const closeSettings=document.getElementById('closeSettings');
@@ -175,6 +177,17 @@ function speakCommand(commandId){
 }
 
 testVoice.addEventListener('click',()=>speakCommand('yaw_right_large'));
+testMp3.addEventListener('click',()=>{
+  const audio=new Audio('audio/uk-UA/test.mp3');
+  let shown=false;
+  const showMissing=()=>{
+    if(shown) return;
+    shown=true;
+    alert('Test audio not found.');
+  };
+  audio.addEventListener('error',showMissing,{once:true});
+  audio.play().catch(showMissing);
+});
 languageSelect.addEventListener('change',()=>{
   localStorage.setItem('fpvVoiceLanguage', languageSelect.value);
   voiceSelect.value='';
