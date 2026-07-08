@@ -29,8 +29,8 @@
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
     html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:Arial, Helvetica, sans-serif;color:var(--black)}
     body{position:fixed;inset:0}
-    .app{position:relative;width:100vw;height:100vh;background:var(--bg);overflow:hidden;transform-origin:top left}
-    .board{position:absolute;left:0;top:0;width:1600px;height:900px;background:var(--bg)}
+    .app{position:fixed;left:env(safe-area-inset-left);top:env(safe-area-inset-top);right:env(safe-area-inset-right);bottom:env(safe-area-inset-bottom);background:var(--bg);overflow:hidden}
+    .board{position:absolute;left:0;top:0;width:1600px;height:900px;background:var(--bg);transform-origin:top left;will-change:transform}
     button{position:absolute;border:0;border-radius:22px;font-weight:900;text-transform:none;text-align:center;line-height:1.08;font-size:26px;padding:0 14px;display:flex;align-items:center;justify-content:center;color:var(--black);box-shadow:none;cursor:pointer;user-select:none;-webkit-user-select:none}
     button:active{transform:scale(.96);filter:brightness(.92)}
     .top{background:var(--purple);color:var(--white);font-size:24px;border-radius:20px}
@@ -51,7 +51,6 @@
     .voicePanel select,.voicePanel button{position:static;width:auto;height:48px;border-radius:12px;border:1px solid rgba(0,0,0,.22);background:#fff;color:#111;font:800 16px Arial;text-transform:none;padding:0 12px;display:block}
     .voicePanel button{background:#111;color:#fff}
     .voicePanel .closeSettings{background:#eee;color:#111;width:48px;padding:0;font-size:24px;align-self:flex-end}
-    @media (orientation:portrait){#rotateHint{display:flex}.app{display:none}.voicePanel,.settingsToggle{display:none}}
   </style>
 </head>
 <body>
@@ -67,6 +66,9 @@
 <script src="commands.js"></script>
 <script>
 const board = document.getElementById('board');
+const app = document.getElementById('app');
+const BOARD_WIDTH = 1600;
+const BOARD_HEIGHT = 900;
 const COMMANDS = window.FPV_COMMANDS || [];
 const COMMAND_BY_ID = Object.fromEntries(COMMANDS.map(command=>[command.id, command]));
 const APP_LANGUAGES = window.FPV_LANGUAGES || [['uk-UA','Українська']];
@@ -100,6 +102,21 @@ const HIDDEN_LABEL_COMMANDS = new Set([
 const audioCache = new Map();
 let currentAudio = null;
 let didPreload = false;
+let scaleFrame = null;
+
+function scaleBoard(){
+  scaleFrame=null;
+  const rect=app.getBoundingClientRect();
+  const scale=Math.min(1, rect.width / BOARD_WIDTH, rect.height / BOARD_HEIGHT);
+  const x=(rect.width - BOARD_WIDTH * scale) / 2;
+  const y=(rect.height - BOARD_HEIGHT * scale) / 2;
+  board.style.transform=`translate(${x}px, ${y}px) scale(${scale})`;
+}
+
+function requestScaleBoard(){
+  if(scaleFrame !== null) return;
+  scaleFrame=requestAnimationFrame(scaleBoard);
+}
 
 function makeButton(command){
   const b=document.createElement('button');
@@ -111,6 +128,19 @@ function makeButton(command){
   board.appendChild(b);
 }
 COMMANDS.forEach(makeButton);
+requestScaleBoard();
+
+window.addEventListener('load',requestScaleBoard);
+window.addEventListener('resize',requestScaleBoard);
+window.addEventListener('orientationchange',requestScaleBoard);
+window.addEventListener('pageshow',requestScaleBoard);
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden) requestScaleBoard();
+});
+if(window.visualViewport){
+  visualViewport.addEventListener('resize',requestScaleBoard);
+  visualViewport.addEventListener('scroll',requestScaleBoard);
+}
 
 const languageSelect=document.getElementById('languageSelect');
 const settingsToggle=document.getElementById('settingsToggle');
