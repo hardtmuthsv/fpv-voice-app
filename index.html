@@ -43,13 +43,14 @@
     .vertical{writing-mode:vertical-rl;text-orientation:mixed}
     .small{font-size:22px}.mid{font-size:24px}.big{font-size:28px}
     #rotateHint{display:none;position:fixed;inset:0;background:#111;color:white;z-index:20;align-items:center;justify-content:center;text-align:center;font:800 26px/1.25 Arial;padding:30px}
-    .settingsToggle{position:fixed;left:12px;bottom:12px;z-index:12;width:58px;height:58px;border-radius:18px;background:#111;color:#fff;font:900 26px Arial;border:0;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.22);text-transform:none;padding:0}
+    .settingsToggle{position:fixed;left:calc(12px + env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom));z-index:12;width:58px;height:58px;border-radius:18px;background:#111;color:#fff;font:900 26px Arial;border:0;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.22);text-transform:none;padding:0}
     .settingsToggle:active{transform:scale(.96)}
-    .voicePanel{position:fixed;left:12px;bottom:82px;z-index:11;background:rgba(255,255,255,.96);border:1px solid rgba(0,0,0,.18);border-radius:18px;padding:14px;display:none;gap:10px;align-items:center;font:800 16px Arial;color:#111;box-shadow:0 8px 28px rgba(0,0,0,.18)}
-    .voicePanel.open{display:flex}
+    .voicePanel{position:fixed;left:0;top:0;bottom:0;width:min(360px,86vw);z-index:11;background:rgba(255,255,255,.97);border-right:1px solid rgba(0,0,0,.18);padding:calc(16px + env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px;align-items:stretch;font:800 16px Arial;color:#111;box-shadow:8px 0 28px rgba(0,0,0,.18);transform:translateX(-105%);transition:transform .18s ease}
+    .voicePanel.open{transform:translateX(0)}
+    .voicePanel label{font:900 14px Arial;text-transform:uppercase}
     .voicePanel select,.voicePanel button{position:static;width:auto;height:48px;border-radius:12px;border:1px solid rgba(0,0,0,.22);background:#fff;color:#111;font:800 16px Arial;text-transform:none;padding:0 12px;display:block}
     .voicePanel button{background:#111;color:#fff}
-    .voicePanel .closeSettings{background:#eee;color:#111;width:48px;padding:0;font-size:24px}
+    .voicePanel .closeSettings{background:#eee;color:#111;width:48px;padding:0;font-size:24px;align-self:flex-end}
     @media (orientation:portrait){#rotateHint{display:flex}.app{display:none}.voicePanel,.settingsToggle{display:none}}
   </style>
 </head>
@@ -58,15 +59,18 @@
   <main class="app" id="app"><section class="board" id="board"></section></main>
   <button class="settingsToggle" id="settingsToggle" type="button" aria-label="Налаштування">⚙</button>
   <div class="voicePanel" id="voicePanel">
+    <button class="closeSettings" id="closeSettings" type="button" aria-label="Закрити">×</button>
+    <label for="languageSelect">Мова</label>
+    <select id="languageSelect"></select>
     <label for="voiceMode">Голос</label>
     <select id="voiceMode">
       <option value="auto">Auto</option>
       <option value="male" selected>Чоловічий</option>
       <option value="female">Жіночий</option>
     </select>
+    <label for="voiceSelect">Системний голос</label>
     <select id="voiceSelect" title="Системний голос"></select>
     <button id="testVoice" type="button">Тест</button>
-    <button class="closeSettings" id="closeSettings" type="button" aria-label="Закрити">×</button>
   </div>
 
 <script>
@@ -74,82 +78,82 @@ const board = document.getElementById('board');
 
 const buttons = [
   // top bar
-  [36,55,92,118,'ARM','top','Armar.'],
-  [143,55,132,118,'DISARM','top','Desarmar.'],
-  [296,55,215,118,'ПОТУЖНІСТЬ\nVTX','top','Potencia VTX.'],
-  [528,55,192,118,'БАТАРЕЯ','top','Batería.'],
-  [735,55,190,118,'КАМЕРА 0','top','Cámara cero.'],
-  [938,55,187,118,'КАМЕРА 45','top','Cámara cuarenta y cinco.'],
-  [1140,55,188,118,'КАМЕРА 90','top','Cámara noventa.'],
-  [1345,55,245,118,'ІНВЕРСІЯ\nКЕРУВАННЯ','top','Inversión de control.'],
+  [36,55,92,118,'ARM','top','arm'],
+  [143,55,132,118,'DISARM','top','disarm'],
+  [296,55,215,118,'ПОТУЖНІСТЬ\nVTX','top','vtxPower'],
+  [528,55,192,118,'БАТАРЕЯ','top','battery'],
+  [735,55,190,118,'КАМЕРА 0','top','camera0'],
+  [938,55,187,118,'КАМЕРА 45','top','camera45'],
+  [1140,55,188,118,'КАМЕРА 90','top','camera90'],
+  [1345,55,245,118,'ІНВЕРСІЯ\nКЕРУВАННЯ','top','controlInvert'],
 
   // left red throttle urgent
-  [36,213,246,116,'МИ ПАДАЄМО\nДАЙ ГАЗ ВГОРУ','red','Estamos cayendo. Throttle más fuerte.'],
-  [36,346,246,116,'ДРОН ТРЯСЕ\nTHROTTLE ВГОРУ','red','El drone tiembla. Throttle arriba.'],
+  [36,213,246,116,'МИ ПАДАЄМО\nДАЙ ГАЗ ВГОРУ','red','fallingThrottleUp'],
+  [36,346,246,116,'ДРОН ТРЯСЕ\nTHROTTLE ВГОРУ','red','shakingThrottleUp'],
 
   // throttle block
-  [313,213,137,66,'','red','Throttle arriba grande.'],
-  [313,303,137,66,'','red2','Throttle arriba mediano.'],
-  [313,392,137,66,'','red3','Throttle arriba chico.'],
-  [473,213,246,116,'THROTTLE\n90','red','Throttle noventa.'],
-  [473,342,246,116,'THROTTLE\n60','red2','Throttle sesenta.'],
-  [313,635,137,66,'','red3','Throttle abajo chico.'],
-  [313,724,137,66,'','gray','Throttle abajo mediano.'],
-  [313,814,137,66,'','white','Throttle abajo grande.'],
-  [473,768,246,116,'ПОВІЛЬНО ВНИЗ\nTHROTTLE','gray','Throttle abajo despacio.'],
-  [747,213,132,116,'МАЛО\nTHROTTLE','gray','Poco throttle.'],
-  [747,346,132,116,'БАГАТО\nTHROTTLE','gray','Mucho throttle.'],
+  [313,213,137,66,'','red','throttleUpLarge'],
+  [313,303,137,66,'','red2','throttleUpMedium'],
+  [313,392,137,66,'','red3','throttleUpSmall'],
+  [473,213,246,116,'THROTTLE\n90','red','throttle90'],
+  [473,342,246,116,'THROTTLE\n60','red2','throttle60'],
+  [313,635,137,66,'','red3','throttleDownSmall'],
+  [313,724,137,66,'','gray','throttleDownMedium'],
+  [313,814,137,66,'','white','throttleDownLarge'],
+  [473,768,246,116,'ПОВІЛЬНО ВНИЗ\nTHROTTLE','gray','throttleDownSlow'],
+  [747,213,132,116,'МАЛО\nTHROTTLE','gray','throttleLow'],
+  [747,346,132,116,'БАГАТО\nTHROTTLE','gray','throttleHigh'],
 
   // yaw/roll blue
-  [36,478,68,136,'','blue','Yaw izquierda grande.'],
-  [127,478,68,136,'','blue2','Yaw izquierda mediano.'],
-  [218,478,68,136,'','blue3','Yaw izquierda chico.'],
-  [36,635,247,116,'ПОВЕРТАЄМО\nЛІВОРУЧ','blue2','Yaw izquierda mediano.'],
-  [473,478,68,136,'','blue3','Yaw derecha chico.'],
-  [563,478,68,136,'','blue2','Yaw derecha mediano.'],
-  [653,478,68,136,'','blue','Yaw derecha grande.'],
-  [473,635,247,116,'ПОВЕРТАЄМО\nПРАВОРУЧ','blue2','Yaw derecha mediano.'],
-  [36,768,246,116,'НЕ НАБИРАЙ\nШВИДКО ВИСОТУ','gray','No subas muy rápido.'],
+  [36,478,68,136,'','blue','yawLeftLarge'],
+  [127,478,68,136,'','blue2','yawLeftMedium'],
+  [218,478,68,136,'','blue3','yawLeftSmall'],
+  [36,635,247,116,'ПОВЕРТАЄМО\nЛІВОРУЧ','blue2','turnLeft'],
+  [473,478,68,136,'','blue3','yawRightSmall'],
+  [563,478,68,136,'','blue2','yawRightMedium'],
+  [653,478,68,136,'','blue','yawRightLarge'],
+  [473,635,247,116,'ПОВЕРТАЄМО\nПРАВОРУЧ','blue2','turnRight'],
+  [36,768,246,116,'НЕ НАБИРАЙ\nШВИДКО ВИСОТУ','gray','dontClimbFast'],
 
   // altitude gray
-  [747,489,132,116,'ВИСОТА\n500','gray','Altura quinientos.'],
-  [747,635,132,116,'ВИСОТА\n300','gray','Altura trescientos.'],
-  [747,768,132,116,'ВИСОТА\n200','gray','Altura doscientos.'],
+  [747,489,132,116,'ВИСОТА\n500','gray','alt500'],
+  [747,635,132,116,'ВИСОТА\n300','gray','alt300'],
+  [747,768,132,116,'ВИСОТА\n200','gray','alt200'],
 
   // center green/yellow commands
-  [908,213,246,116,'ТРИМАЙ ВИСОТУ','green2','Mantén la altura.'],
-  [908,342,246,116,'НЕ ЛІТАЙ ЗАДОМ','green2','No vueles hacia atrás.'],
-  [908,635,246,116,'ВИРІВНЯЙ\nГОРИЗОНТ','yellow2','Nivela el horizonte.'],
-  [908,768,246,116,'ПІДНІМИ НІС\nДРОНА','green2','Pitch arriba. Sube la nariz del drone.'],
+  [908,213,246,116,'ТРИМАЙ ВИСОТУ','green2','holdAltitude'],
+  [908,342,246,116,'НЕ ЛІТАЙ ЗАДОМ','green2','dontFlyBackwards'],
+  [908,635,246,116,'ВИРІВНЯЙ\nГОРИЗОНТ','yellow2','levelHorizon'],
+  [908,768,246,116,'ПІДНІМИ НІС\nДРОНА','green2','raiseNose'],
 
   // pitch green/yellow
-  [1185,213,137,66,'','green','Pitch arriba grande.'],
-  [1185,303,137,66,'','green2','Pitch arriba mediano.'],
-  [1185,392,137,66,'','green3','Pitch arriba chico.'],
-  [1185,635,137,66,'','green3','Pitch abajo chico.'],
-  [1185,724,137,66,'','green2','Pitch abajo mediano.'],
-  [1185,814,137,66,'','green','Pitch abajo grande.'],
+  [1185,213,137,66,'','green','pitchUpLarge'],
+  [1185,303,137,66,'','green2','pitchUpMedium'],
+  [1185,392,137,66,'','green3','pitchUpSmall'],
+  [1185,635,137,66,'','green3','pitchDownSmall'],
+  [1185,724,137,66,'','green2','pitchDownMedium'],
+  [1185,814,137,66,'','green','pitchDownLarge'],
 
   // right pitch block
-  [1342,213,247,116,'ТРЕБА\nЛЕТІТИ ВПЕРЕД','gray','Hay que volar hacia adelante.'],
-  [1342,342,247,116,'PITCH\nВПЕРЕД','green2','Pitch adelante.'],
-  [1342,478,68,136,'','yellow3','Roll derecha chico.'],
-  [1432,478,68,136,'','yellow2','Roll derecha mediano.'],
-  [1523,478,68,136,'','yellow','Roll derecha grande.'],
-  [1342,635,247,116,'ДРОН НАХИЛЕНИЙ','gray','El drone está inclinado.'],
-  [1342,768,247,116,'PITCH\nНАЗАД','green2','Pitch atrás.'],
-  [908,478,68,136,'','yellow','Roll izquierda grande.'],
-  [998,478,68,136,'','yellow2','Roll izquierda mediano.'],
-  [1088,478,68,136,'','yellow3','Roll izquierda chico.'],
+  [1342,213,247,116,'ТРЕБА\nЛЕТІТИ ВПЕРЕД','gray','flyForward'],
+  [1342,342,247,116,'PITCH\nВПЕРЕД','green2','pitchForward'],
+  [1342,478,68,136,'','yellow3','rollRightSmall'],
+  [1432,478,68,136,'','yellow2','rollRightMedium'],
+  [1523,478,68,136,'','yellow','rollRightLarge'],
+  [1342,635,247,116,'ДРОН НАХИЛЕНИЙ','gray','droneTilted'],
+  [1342,768,247,116,'PITCH\nНАЗАД','green2','pitchBack'],
+  [908,478,68,136,'','yellow','rollLeftLarge'],
+  [998,478,68,136,'','yellow2','rollLeftMedium'],
+  [1088,478,68,136,'','yellow3','rollLeftSmall'],
 ];
 
-function makeButton([x,y,w,h,label,cls,say]){
+function makeButton([x,y,w,h,label,cls,command]){
   const b=document.createElement('button');
   b.style.left=x+'px';b.style.top=y+'px';b.style.width=w+'px';b.style.height=h+'px';
   b.className=cls;
   b.innerText=label;
-  b.dataset.say=say;
-  b.addEventListener('click',()=>speak(say));
+  b.dataset.command=command;
+  b.addEventListener('click',()=>speakCommand(command));
   board.appendChild(b);
 }
 buttons.forEach(makeButton);
@@ -164,7 +168,75 @@ function fit(){
 }
 window.addEventListener('resize',fit);fit();
 
+const LANGUAGES = [
+  ['uk-UA','Українська'],['en-US','English'],['es-ES','Español'],['fr-FR','Français'],
+  ['de-DE','Deutsch'],['it-IT','Italiano'],['pt-PT','Português'],['nl-NL','Nederlands'],
+  ['pl-PL','Polski'],['cs-CZ','Čeština'],['sk-SK','Slovenčina'],['sl-SI','Slovenščina'],
+  ['hr-HR','Hrvatski'],['sr-RS','Српски'],['bs-BA','Bosanski'],['ro-RO','Română'],
+  ['hu-HU','Magyar'],['et-EE','Eesti'],['lv-LV','Latviešu'],['lt-LT','Lietuvių'],
+  ['fi-FI','Suomi'],['sv-SE','Svenska'],['nb-NO','Norsk'],['da-DK','Dansk'],
+  ['is-IS','Íslenska'],['el-GR','Ελληνικά'],['tr-TR','Türkçe'],['ko-KR','한국어']
+];
+
+const TERMS = {
+  'uk-UA':{throttle:'Газ',yaw:'Рискання',pitch:'Тангаж',roll:'Крен',up:'вгору',down:'вниз',left:'ліворуч',right:'праворуч',forward:'вперед',back:'назад',large:'сильно',medium:'середньо',small:'трохи',low:'мало газу',high:'багато газу',slow:'повільно',arm:'Арм.',disarm:'Дизарм.',vtxPower:'Потужність VTX.',battery:'Батарея.',camera:'Камера',controlInvert:'Інверсія керування.',fallingThrottleUp:'Ми падаємо. Дай газ вгору.',shakingThrottleUp:'Дрон трясе. Газ вгору.',turnLeft:'Повертаємо ліворуч.',turnRight:'Повертаємо праворуч.',dontClimbFast:'Не набирай швидко висоту.',holdAltitude:'Тримай висоту.',dontFlyBackwards:'Не літай задом.',levelHorizon:'Вирівняй горизонт.',raiseNose:'Підніми ніс дрона.',flyForward:'Треба летіти вперед.',droneTilted:'Дрон нахилений.',altitude:'Висота'},
+  'en-US':{throttle:'Throttle',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'up',down:'down',left:'left',right:'right',forward:'forward',back:'back',large:'large',medium:'medium',small:'small',low:'Low throttle',high:'High throttle',slow:'slow',arm:'Arm.',disarm:'Disarm.',vtxPower:'VTX power.',battery:'Battery.',camera:'Camera',controlInvert:'Control inversion.',fallingThrottleUp:'We are falling. Throttle up.',shakingThrottleUp:'The drone is shaking. Throttle up.',turnLeft:'Turn left.',turnRight:'Turn right.',dontClimbFast:'Do not climb too fast.',holdAltitude:'Hold altitude.',dontFlyBackwards:'Do not fly backward.',levelHorizon:'Level the horizon.',raiseNose:'Raise the drone nose.',flyForward:'Fly forward.',droneTilted:'The drone is tilted.',altitude:'Altitude'},
+  'es-ES':{throttle:'Throttle',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'arriba',down:'abajo',left:'izquierda',right:'derecha',forward:'adelante',back:'atrás',large:'grande',medium:'mediano',small:'pequeño',low:'Poco throttle',high:'Mucho throttle',slow:'despacio',arm:'Armar.',disarm:'Desarmar.',vtxPower:'Potencia VTX.',battery:'Batería.',camera:'Cámara',controlInvert:'Inversión de control.',fallingThrottleUp:'Estamos cayendo. Throttle más fuerte.',shakingThrottleUp:'El drone tiembla. Throttle arriba.',turnLeft:'Giramos a la izquierda.',turnRight:'Giramos a la derecha.',dontClimbFast:'No subas muy rápido.',holdAltitude:'Mantén la altura.',dontFlyBackwards:'No vueles hacia atrás.',levelHorizon:'Nivela el horizonte.',raiseNose:'Sube la nariz del drone.',flyForward:'Hay que volar hacia adelante.',droneTilted:'El drone está inclinado.',altitude:'Altura'},
+  'fr-FR':{throttle:'Gaz',yaw:'Lacet',pitch:'Tangage',roll:'Roulis',up:'haut',down:'bas',left:'gauche',right:'droite',forward:'avant',back:'arrière',large:'grand',medium:'moyen',small:'petit',low:'Peu de gaz',high:'Trop de gaz',slow:'lentement',arm:'Armer.',disarm:'Désarmer.',vtxPower:'Puissance VTX.',battery:'Batterie.',camera:'Caméra',controlInvert:'Inversion des commandes.',fallingThrottleUp:'Nous tombons. Monte les gaz.',shakingThrottleUp:'Le drone tremble. Monte les gaz.',turnLeft:'Tourne à gauche.',turnRight:'Tourne à droite.',dontClimbFast:'Ne monte pas trop vite.',holdAltitude:'Garde l altitude.',dontFlyBackwards:'Ne vole pas en arrière.',levelHorizon:'Mets l horizon à plat.',raiseNose:'Lève le nez du drone.',flyForward:'Il faut voler vers l avant.',droneTilted:'Le drone est incliné.',altitude:'Altitude'},
+  'de-DE':{throttle:'Gas',yaw:'Gier',pitch:'Nick',roll:'Roll',up:'hoch',down:'runter',left:'links',right:'rechts',forward:'vorwärts',back:'zurück',large:'groß',medium:'mittel',small:'klein',low:'Wenig Gas',high:'Viel Gas',slow:'langsam',arm:'Scharf schalten.',disarm:'Entschärfen.',vtxPower:'VTX Leistung.',battery:'Batterie.',camera:'Kamera',controlInvert:'Steuerung invertieren.',fallingThrottleUp:'Wir fallen. Mehr Gas.',shakingThrottleUp:'Die Drohne wackelt. Gas hoch.',turnLeft:'Nach links drehen.',turnRight:'Nach rechts drehen.',dontClimbFast:'Nicht zu schnell steigen.',holdAltitude:'Höhe halten.',dontFlyBackwards:'Nicht rückwärts fliegen.',levelHorizon:'Horizont ausrichten.',raiseNose:'Nase der Drohne anheben.',flyForward:'Vorwärts fliegen.',droneTilted:'Die Drohne ist geneigt.',altitude:'Höhe'},
+  'it-IT':{throttle:'Gas',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'su',down:'giu',left:'sinistra',right:'destra',forward:'avanti',back:'indietro',large:'grande',medium:'medio',small:'piccolo',low:'Poco gas',high:'Molto gas',slow:'lentamente',arm:'Arma.',disarm:'Disarma.',vtxPower:'Potenza VTX.',battery:'Batteria.',camera:'Camera',controlInvert:'Inversione dei comandi.',fallingThrottleUp:'Stiamo cadendo. Dai gas.',shakingThrottleUp:'Il drone vibra. Gas su.',turnLeft:'Gira a sinistra.',turnRight:'Gira a destra.',dontClimbFast:'Non salire troppo in fretta.',holdAltitude:'Mantieni quota.',dontFlyBackwards:'Non volare all indietro.',levelHorizon:'Livella l orizzonte.',raiseNose:'Alza il muso del drone.',flyForward:'Bisogna volare avanti.',droneTilted:'Il drone è inclinato.',altitude:'Quota'},
+  'pt-PT':{throttle:'Acelerador',yaw:'Guinada',pitch:'Pitch',roll:'Roll',up:'para cima',down:'para baixo',left:'esquerda',right:'direita',forward:'para a frente',back:'para trás',large:'grande',medium:'médio',small:'pequeno',low:'Pouco acelerador',high:'Muito acelerador',slow:'devagar',arm:'Armar.',disarm:'Desarmar.',vtxPower:'Potência VTX.',battery:'Bateria.',camera:'Câmara',controlInvert:'Inversão de controlo.',fallingThrottleUp:'Estamos a cair. Aumenta o acelerador.',shakingThrottleUp:'O drone treme. Acelerador para cima.',turnLeft:'Vira à esquerda.',turnRight:'Vira à direita.',dontClimbFast:'Não ganhes altura muito rápido.',holdAltitude:'Mantém a altitude.',dontFlyBackwards:'Não voes para trás.',levelHorizon:'Nivela o horizonte.',raiseNose:'Levanta o nariz do drone.',flyForward:'É preciso voar para a frente.',droneTilted:'O drone está inclinado.',altitude:'Altitude'},
+  'nl-NL':{throttle:'Gas',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'omhoog',down:'omlaag',left:'links',right:'rechts',forward:'vooruit',back:'achteruit',large:'groot',medium:'middel',small:'klein',low:'Weinig gas',high:'Veel gas',slow:'langzaam',arm:'Armen.',disarm:'Ontwapenen.',vtxPower:'VTX vermogen.',battery:'Batterij.',camera:'Camera',controlInvert:'Besturing omkeren.',fallingThrottleUp:'We vallen. Geef meer gas.',shakingThrottleUp:'De drone trilt. Gas omhoog.',turnLeft:'Draai links.',turnRight:'Draai rechts.',dontClimbFast:'Stijg niet te snel.',holdAltitude:'Houd hoogte.',dontFlyBackwards:'Vlieg niet achteruit.',levelHorizon:'Zet de horizon recht.',raiseNose:'Til de neus van de drone op.',flyForward:'Vlieg vooruit.',droneTilted:'De drone hangt scheef.',altitude:'Hoogte'},
+  'pl-PL':{throttle:'Gaz',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'w górę',down:'w dół',left:'w lewo',right:'w prawo',forward:'do przodu',back:'do tyłu',large:'dużo',medium:'średnio',small:'mało',low:'Mało gazu',high:'Dużo gazu',slow:'powoli',arm:'Uzbrój.',disarm:'Rozbrój.',vtxPower:'Moc VTX.',battery:'Bateria.',camera:'Kamera',controlInvert:'Odwrócenie sterowania.',fallingThrottleUp:'Spadamy. Dodaj gazu.',shakingThrottleUp:'Dron drży. Gaz w górę.',turnLeft:'Skręcamy w lewo.',turnRight:'Skręcamy w prawo.',dontClimbFast:'Nie nabieraj szybko wysokości.',holdAltitude:'Trzymaj wysokość.',dontFlyBackwards:'Nie leć tyłem.',levelHorizon:'Wyrównaj horyzont.',raiseNose:'Podnieś nos drona.',flyForward:'Trzeba lecieć do przodu.',droneTilted:'Dron jest przechylony.',altitude:'Wysokość'},
+  'cs-CZ':{throttle:'Plyn',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'nahoru',down:'dolů',left:'doleva',right:'doprava',forward:'dopředu',back:'dozadu',large:'hodně',medium:'středně',small:'málo',low:'Málo plynu',high:'Hodně plynu',slow:'pomalu',arm:'Zapnout arm.',disarm:'Vypnout arm.',vtxPower:'Výkon VTX.',battery:'Baterie.',camera:'Kamera',controlInvert:'Inverze řízení.',fallingThrottleUp:'Padáme. Přidej plyn.',shakingThrottleUp:'Dron se třese. Plyn nahoru.',turnLeft:'Otáčíme doleva.',turnRight:'Otáčíme doprava.',dontClimbFast:'Nestoupej moc rychle.',holdAltitude:'Drž výšku.',dontFlyBackwards:'Nelétej dozadu.',levelHorizon:'Srovnej horizont.',raiseNose:'Zvedni nos dronu.',flyForward:'Je třeba letět dopředu.',droneTilted:'Dron je nakloněný.',altitude:'Výška'},
+  'sk-SK':{throttle:'Plyn',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'hore',down:'dole',left:'doľava',right:'doprava',forward:'dopredu',back:'dozadu',large:'veľa',medium:'stredne',small:'málo',low:'Málo plynu',high:'Veľa plynu',slow:'pomaly',arm:'Zapni arm.',disarm:'Vypni arm.',vtxPower:'Výkon VTX.',battery:'Batéria.',camera:'Kamera',controlInvert:'Inverzia riadenia.',fallingThrottleUp:'Padáme. Pridaj plyn.',shakingThrottleUp:'Dron sa trasie. Plyn hore.',turnLeft:'Otáčame doľava.',turnRight:'Otáčame doprava.',dontClimbFast:'Nestúpaj príliš rýchlo.',holdAltitude:'Drž výšku.',dontFlyBackwards:'Neleť dozadu.',levelHorizon:'Vyrovnaj horizont.',raiseNose:'Zdvihni nos dronu.',flyForward:'Treba letieť dopredu.',droneTilted:'Dron je naklonený.',altitude:'Výška'},
+  'sl-SI':{throttle:'Plin',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'gor',down:'dol',left:'levo',right:'desno',forward:'naprej',back:'nazaj',large:'veliko',medium:'srednje',small:'malo',low:'Malo plina',high:'Veliko plina',slow:'počasi',arm:'Vklopi arm.',disarm:'Izklopi arm.',vtxPower:'Moč VTX.',battery:'Baterija.',camera:'Kamera',controlInvert:'Inverzija upravljanja.',fallingThrottleUp:'Padamo. Dodaj plin.',shakingThrottleUp:'Dron se trese. Plin gor.',turnLeft:'Zavij levo.',turnRight:'Zavij desno.',dontClimbFast:'Ne dviguj se prehitro.',holdAltitude:'Drži višino.',dontFlyBackwards:'Ne leti nazaj.',levelHorizon:'Poravnaj horizont.',raiseNose:'Dvigni nos drona.',flyForward:'Treba je leteti naprej.',droneTilted:'Dron je nagnjen.',altitude:'Višina'},
+  'hr-HR':{throttle:'Gas',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'gore',down:'dolje',left:'lijevo',right:'desno',forward:'naprijed',back:'nazad',large:'jako',medium:'srednje',small:'malo',low:'Malo gasa',high:'Puno gasa',slow:'polako',arm:'Uključi arm.',disarm:'Isključi arm.',vtxPower:'Snaga VTX.',battery:'Baterija.',camera:'Kamera',controlInvert:'Inverzija upravljanja.',fallingThrottleUp:'Padamo. Dodaj gas.',shakingThrottleUp:'Dron se trese. Gas gore.',turnLeft:'Skrećemo lijevo.',turnRight:'Skrećemo desno.',dontClimbFast:'Ne diži visinu prebrzo.',holdAltitude:'Drži visinu.',dontFlyBackwards:'Ne leti unatrag.',levelHorizon:'Poravnaj horizont.',raiseNose:'Podigni nos drona.',flyForward:'Treba letjeti naprijed.',droneTilted:'Dron je nagnut.',altitude:'Visina'},
+  'sr-RS':{throttle:'Гас',yaw:'Јо',pitch:'Пич',roll:'Рол',up:'горе',down:'доле',left:'лево',right:'десно',forward:'напред',back:'назад',large:'јако',medium:'средње',small:'мало',low:'Мало гаса',high:'Много гаса',slow:'полако',arm:'Арм.',disarm:'Дизарм.',vtxPower:'Снага VTX.',battery:'Батерија.',camera:'Камера',controlInvert:'Инверзија управљања.',fallingThrottleUp:'Падамо. Дај гас.',shakingThrottleUp:'Дрон се тресе. Гас горе.',turnLeft:'Скрећемо лево.',turnRight:'Скрећемо десно.',dontClimbFast:'Не пењи се пребрзо.',holdAltitude:'Држи висину.',dontFlyBackwards:'Не лети уназад.',levelHorizon:'Поравнај хоризонт.',raiseNose:'Подигни нос дрона.',flyForward:'Треба летети напред.',droneTilted:'Дрон је нагнут.',altitude:'Висина'},
+  'bs-BA':{throttle:'Gas',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'gore',down:'dolje',left:'lijevo',right:'desno',forward:'naprijed',back:'nazad',large:'jako',medium:'srednje',small:'malo',low:'Malo gasa',high:'Puno gasa',slow:'polako',arm:'Uključi arm.',disarm:'Isključi arm.',vtxPower:'Snaga VTX.',battery:'Baterija.',camera:'Kamera',controlInvert:'Inverzija upravljanja.',fallingThrottleUp:'Padamo. Dodaj gas.',shakingThrottleUp:'Dron se trese. Gas gore.',turnLeft:'Skrećemo lijevo.',turnRight:'Skrećemo desno.',dontClimbFast:'Ne diži visinu prebrzo.',holdAltitude:'Drži visinu.',dontFlyBackwards:'Ne leti unazad.',levelHorizon:'Poravnaj horizont.',raiseNose:'Podigni nos drona.',flyForward:'Treba letjeti naprijed.',droneTilted:'Dron je nagnut.',altitude:'Visina'},
+  'ro-RO':{throttle:'Gaz',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'sus',down:'jos',left:'stânga',right:'dreapta',forward:'înainte',back:'înapoi',large:'mare',medium:'mediu',small:'mic',low:'Puțin gaz',high:'Mult gaz',slow:'încet',arm:'Armează.',disarm:'Dezarmează.',vtxPower:'Putere VTX.',battery:'Baterie.',camera:'Cameră',controlInvert:'Inversare control.',fallingThrottleUp:'Cădem. Dă gaz.',shakingThrottleUp:'Drona tremură. Gaz sus.',turnLeft:'Virăm la stânga.',turnRight:'Virăm la dreapta.',dontClimbFast:'Nu urca prea repede.',holdAltitude:'Ține altitudinea.',dontFlyBackwards:'Nu zbura înapoi.',levelHorizon:'Nivelează orizontul.',raiseNose:'Ridică botul dronei.',flyForward:'Trebuie să zbori înainte.',droneTilted:'Drona este înclinată.',altitude:'Altitudine'},
+  'hu-HU':{throttle:'Gáz',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'fel',down:'le',left:'balra',right:'jobbra',forward:'előre',back:'hátra',large:'nagy',medium:'közepes',small:'kicsi',low:'Kevés gáz',high:'Sok gáz',slow:'lassan',arm:'Élesítés.',disarm:'Hatástalanítás.',vtxPower:'VTX teljesítmény.',battery:'Akkumulátor.',camera:'Kamera',controlInvert:'Irányítás fordítása.',fallingThrottleUp:'Esünk. Adj gázt.',shakingThrottleUp:'A drón remeg. Gáz fel.',turnLeft:'Fordulj balra.',turnRight:'Fordulj jobbra.',dontClimbFast:'Ne emelkedj túl gyorsan.',holdAltitude:'Tartsd a magasságot.',dontFlyBackwards:'Ne repülj hátra.',levelHorizon:'Szintezd a horizontot.',raiseNose:'Emeld a drón orrát.',flyForward:'Előre kell repülni.',droneTilted:'A drón meg van dőlve.',altitude:'Magasság'},
+  'et-EE':{throttle:'Gaas',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'üles',down:'alla',left:'vasakule',right:'paremale',forward:'edasi',back:'tagasi',large:'palju',medium:'keskmiselt',small:'vähe',low:'Vähe gaasi',high:'Palju gaasi',slow:'aeglaselt',arm:'Armi.',disarm:'Disarmi.',vtxPower:'VTX võimsus.',battery:'Aku.',camera:'Kaamera',controlInvert:'Juhtimise pööramine.',fallingThrottleUp:'Me kukume. Lisa gaasi.',shakingThrottleUp:'Droon väriseb. Gaas üles.',turnLeft:'Pööra vasakule.',turnRight:'Pööra paremale.',dontClimbFast:'Ära tõuse liiga kiiresti.',holdAltitude:'Hoia kõrgust.',dontFlyBackwards:'Ära lenda tagurpidi.',levelHorizon:'Sirgenda horisont.',raiseNose:'Tõsta drooni nina.',flyForward:'Tuleb lennata edasi.',droneTilted:'Droon on kaldu.',altitude:'Kõrgus'},
+  'lv-LV':{throttle:'Gāze',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'augšā',down:'lejā',left:'pa kreisi',right:'pa labi',forward:'uz priekšu',back:'atpakaļ',large:'daudz',medium:'vidēji',small:'maz',low:'Maz gāzes',high:'Daudz gāzes',slow:'lēni',arm:'Ieslēdz arm.',disarm:'Izslēdz arm.',vtxPower:'VTX jauda.',battery:'Baterija.',camera:'Kamera',controlInvert:'Vadības inversija.',fallingThrottleUp:'Mēs krītam. Dod gāzi.',shakingThrottleUp:'Drons trīc. Gāzi augšā.',turnLeft:'Griežam pa kreisi.',turnRight:'Griežam pa labi.',dontClimbFast:'Nekāp pārāk ātri.',holdAltitude:'Turi augstumu.',dontFlyBackwards:'Nelido atpakaļ.',levelHorizon:'Izlīdzini horizontu.',raiseNose:'Pacel drona degunu.',flyForward:'Jālido uz priekšu.',droneTilted:'Drons ir sasvērts.',altitude:'Augstums'},
+  'lt-LT':{throttle:'Gazas',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'aukštyn',down:'žemyn',left:'kairėn',right:'dešinėn',forward:'pirmyn',back:'atgal',large:'daug',medium:'vidutiniškai',small:'mažai',low:'Mažai gazo',high:'Daug gazo',slow:'lėtai',arm:'Įjungti arm.',disarm:'Išjungti arm.',vtxPower:'VTX galia.',battery:'Baterija.',camera:'Kamera',controlInvert:'Valdymo inversija.',fallingThrottleUp:'Mes krentame. Duok gazo.',shakingThrottleUp:'Dronas dreba. Gazas aukštyn.',turnLeft:'Sukame kairėn.',turnRight:'Sukame dešinėn.',dontClimbFast:'Nekilk per greitai.',holdAltitude:'Laikyk aukštį.',dontFlyBackwards:'Neskrisk atgal.',levelHorizon:'Išlygink horizontą.',raiseNose:'Pakelk drono nosį.',flyForward:'Reikia skristi pirmyn.',droneTilted:'Dronas pasviręs.',altitude:'Aukštis'},
+  'fi-FI':{throttle:'Kaasu',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'ylös',down:'alas',left:'vasen',right:'oikea',forward:'eteen',back:'taakse',large:'paljon',medium:'keskellä',small:'vähän',low:'Vähän kaasua',high:'Paljon kaasua',slow:'hitaasti',arm:'Armaa.',disarm:'Disarmaa.',vtxPower:'VTX teho.',battery:'Akku.',camera:'Kamera',controlInvert:'Ohjauksen kääntö.',fallingThrottleUp:'Putoamme. Lisää kaasua.',shakingThrottleUp:'Drone tärisee. Kaasu ylös.',turnLeft:'Käänny vasemmalle.',turnRight:'Käänny oikealle.',dontClimbFast:'Älä nouse liian nopeasti.',holdAltitude:'Pidä korkeus.',dontFlyBackwards:'Älä lennä taaksepäin.',levelHorizon:'Suorista horisontti.',raiseNose:'Nosta dronen nokkaa.',flyForward:'Pitää lentää eteenpäin.',droneTilted:'Drone on kallellaan.',altitude:'Korkeus'},
+  'sv-SE':{throttle:'Gas',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'upp',down:'ner',left:'vänster',right:'höger',forward:'framåt',back:'bakåt',large:'mycket',medium:'medium',small:'lite',low:'Lite gas',high:'Mycket gas',slow:'långsamt',arm:'Arma.',disarm:'Avväpna.',vtxPower:'VTX effekt.',battery:'Batteri.',camera:'Kamera',controlInvert:'Invertera styrning.',fallingThrottleUp:'Vi faller. Ge mer gas.',shakingThrottleUp:'Drönaren skakar. Gas upp.',turnLeft:'Sväng vänster.',turnRight:'Sväng höger.',dontClimbFast:'Stig inte för snabbt.',holdAltitude:'Håll höjden.',dontFlyBackwards:'Flyg inte bakåt.',levelHorizon:'Räta upp horisonten.',raiseNose:'Höj drönarens nos.',flyForward:'Flyg framåt.',droneTilted:'Drönaren lutar.',altitude:'Höjd'},
+  'nb-NO':{throttle:'Gass',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'opp',down:'ned',left:'venstre',right:'høyre',forward:'framover',back:'bakover',large:'mye',medium:'middels',small:'lite',low:'Lite gass',high:'Mye gass',slow:'sakte',arm:'Arm.',disarm:'Disarm.',vtxPower:'VTX effekt.',battery:'Batteri.',camera:'Kamera',controlInvert:'Inverter styring.',fallingThrottleUp:'Vi faller. Gi mer gass.',shakingThrottleUp:'Dronen rister. Gass opp.',turnLeft:'Sving venstre.',turnRight:'Sving høyre.',dontClimbFast:'Ikke stig for raskt.',holdAltitude:'Hold høyden.',dontFlyBackwards:'Ikke fly bakover.',levelHorizon:'Rett opp horisonten.',raiseNose:'Løft nesen på dronen.',flyForward:'Fly framover.',droneTilted:'Dronen er skjev.',altitude:'Høyde'},
+  'da-DK':{throttle:'Gas',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'op',down:'ned',left:'venstre',right:'højre',forward:'frem',back:'tilbage',large:'meget',medium:'middel',small:'lidt',low:'Lidt gas',high:'Meget gas',slow:'langsomt',arm:'Arm.',disarm:'Disarm.',vtxPower:'VTX effekt.',battery:'Batteri.',camera:'Kamera',controlInvert:'Inverter styring.',fallingThrottleUp:'Vi falder. Giv mere gas.',shakingThrottleUp:'Dronen ryster. Gas op.',turnLeft:'Drej til venstre.',turnRight:'Drej til højre.',dontClimbFast:'Stig ikke for hurtigt.',holdAltitude:'Hold højden.',dontFlyBackwards:'Flyv ikke baglæns.',levelHorizon:'Ret horisonten.',raiseNose:'Løft dronens næse.',flyForward:'Flyv fremad.',droneTilted:'Dronen hælder.',altitude:'Højde'},
+  'is-IS':{throttle:'Gjof',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'upp',down:'niður',left:'vinstri',right:'hægri',forward:'áfram',back:'aftur',large:'mikið',medium:'miðlungs',small:'lítið',low:'Lítil gjöf',high:'Mikil gjöf',slow:'hægt',arm:'Virkja.',disarm:'Afvirkja.',vtxPower:'VTX afl.',battery:'Rafhlaða.',camera:'Myndavél',controlInvert:'Snúa stjórn við.',fallingThrottleUp:'Við föllum. Meiri gjöf.',shakingThrottleUp:'Dróninn titrar. Gjöf upp.',turnLeft:'Beygðu til vinstri.',turnRight:'Beygðu til hægri.',dontClimbFast:'Ekki hækka of hratt.',holdAltitude:'Haltu hæð.',dontFlyBackwards:'Ekki fljúga aftur á bak.',levelHorizon:'Réttu sjóndeildarhringinn.',raiseNose:'Lyftu nefi drónans.',flyForward:'Fljúgðu áfram.',droneTilted:'Dróninn hallar.',altitude:'Hæð'},
+  'el-GR':{throttle:'Γκάζι',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'πάνω',down:'κάτω',left:'αριστερά',right:'δεξιά',forward:'μπροστά',back:'πίσω',large:'πολύ',medium:'μέτρια',small:'λίγο',low:'Λίγο γκάζι',high:'Πολύ γκάζι',slow:'αργά',arm:'Όπλιση.',disarm:'Αφοπλισμός.',vtxPower:'Ισχύς VTX.',battery:'Μπαταρία.',camera:'Κάμερα',controlInvert:'Αντιστροφή ελέγχου.',fallingThrottleUp:'Πέφτουμε. Δώσε γκάζι.',shakingThrottleUp:'Το drone τρέμει. Γκάζι πάνω.',turnLeft:'Στρίβουμε αριστερά.',turnRight:'Στρίβουμε δεξιά.',dontClimbFast:'Μην ανεβαίνεις πολύ γρήγορα.',holdAltitude:'Κράτα ύψος.',dontFlyBackwards:'Μην πετάς προς τα πίσω.',levelHorizon:'Ίσιωσε τον ορίζοντα.',raiseNose:'Σήκωσε τη μύτη του drone.',flyForward:'Πρέπει να πετάξεις μπροστά.',droneTilted:'Το drone έχει κλίση.',altitude:'Ύψος'},
+  'tr-TR':{throttle:'Gaz',yaw:'Yaw',pitch:'Pitch',roll:'Roll',up:'yukarı',down:'aşağı',left:'sol',right:'sağ',forward:'ileri',back:'geri',large:'büyük',medium:'orta',small:'küçük',low:'Az gaz',high:'Çok gaz',slow:'yavaş',arm:'Arm et.',disarm:'Disarm et.',vtxPower:'VTX gücü.',battery:'Batarya.',camera:'Kamera',controlInvert:'Kontrol ters çevirme.',fallingThrottleUp:'Düşüyoruz. Gaz ver.',shakingThrottleUp:'Drone titriyor. Gaz yukarı.',turnLeft:'Sola dön.',turnRight:'Sağa dön.',dontClimbFast:'Çok hızlı yükselme.',holdAltitude:'İrtifayı koru.',dontFlyBackwards:'Geriye uçma.',levelHorizon:'Ufku düzle.',raiseNose:'Drone burnunu kaldır.',flyForward:'İleri uçmak gerekiyor.',droneTilted:'Drone yatık.',altitude:'İrtifa'},
+  'ko-KR':{throttle:'스로틀',yaw:'요',pitch:'피치',roll:'롤',up:'위로',down:'아래로',left:'왼쪽',right:'오른쪽',forward:'앞으로',back:'뒤로',large:'크게',medium:'중간',small:'조금',low:'스로틀 낮게',high:'스로틀 높게',slow:'천천히',arm:'시동.',disarm:'시동 해제.',vtxPower:'VTX 출력.',battery:'배터리.',camera:'카메라',controlInvert:'조종 반전.',fallingThrottleUp:'떨어지고 있다. 스로틀 올려.',shakingThrottleUp:'드론이 흔들린다. 스로틀 위로.',turnLeft:'왼쪽으로 돌아.',turnRight:'오른쪽으로 돌아.',dontClimbFast:'너무 빨리 상승하지 마.',holdAltitude:'고도 유지.',dontFlyBackwards:'뒤로 날지 마.',levelHorizon:'수평을 맞춰.',raiseNose:'드론 기수를 올려.',flyForward:'앞으로 날아야 해.',droneTilted:'드론이 기울었다.',altitude:'고도'}
+};
+
+function phrasePack(t){
+  const phrase=(...parts)=>parts.filter(Boolean).join(' ') + '.';
+  return {
+    arm:t.arm, disarm:t.disarm, vtxPower:t.vtxPower, battery:t.battery,
+    camera0:phrase(t.camera,'0'), camera45:phrase(t.camera,'45'), camera90:phrase(t.camera,'90'),
+    controlInvert:t.controlInvert, fallingThrottleUp:t.fallingThrottleUp, shakingThrottleUp:t.shakingThrottleUp,
+    throttleUpLarge:phrase(t.throttle,t.up,t.large), throttleUpMedium:phrase(t.throttle,t.up,t.medium), throttleUpSmall:phrase(t.throttle,t.up,t.small),
+    throttle90:phrase(t.throttle,'90'), throttle60:phrase(t.throttle,'60'),
+    throttleDownSmall:phrase(t.throttle,t.down,t.small), throttleDownMedium:phrase(t.throttle,t.down,t.medium), throttleDownLarge:phrase(t.throttle,t.down,t.large),
+    throttleDownSlow:phrase(t.throttle,t.down,t.slow), throttleLow:t.low + '.', throttleHigh:t.high + '.',
+    yawLeftLarge:phrase(t.yaw,t.left,t.large), yawLeftMedium:phrase(t.yaw,t.left,t.medium), yawLeftSmall:phrase(t.yaw,t.left,t.small),
+    turnLeft:t.turnLeft, yawRightSmall:phrase(t.yaw,t.right,t.small), yawRightMedium:phrase(t.yaw,t.right,t.medium), yawRightLarge:phrase(t.yaw,t.right,t.large),
+    turnRight:t.turnRight, dontClimbFast:t.dontClimbFast,
+    alt500:phrase(t.altitude,'500'), alt300:phrase(t.altitude,'300'), alt200:phrase(t.altitude,'200'),
+    holdAltitude:t.holdAltitude, dontFlyBackwards:t.dontFlyBackwards, levelHorizon:t.levelHorizon, raiseNose:t.raiseNose,
+    pitchUpLarge:phrase(t.pitch,t.up,t.large), pitchUpMedium:phrase(t.pitch,t.up,t.medium), pitchUpSmall:phrase(t.pitch,t.up,t.small),
+    pitchDownSmall:phrase(t.pitch,t.down,t.small), pitchDownMedium:phrase(t.pitch,t.down,t.medium), pitchDownLarge:phrase(t.pitch,t.down,t.large),
+    flyForward:t.flyForward, pitchForward:phrase(t.pitch,t.forward), rollRightSmall:phrase(t.roll,t.right,t.small),
+    rollRightMedium:phrase(t.roll,t.right,t.medium), rollRightLarge:phrase(t.roll,t.right,t.large),
+    droneTilted:t.droneTilted, pitchBack:phrase(t.pitch,t.back), rollLeftLarge:phrase(t.roll,t.left,t.large),
+    rollLeftMedium:phrase(t.roll,t.left,t.medium), rollLeftSmall:phrase(t.roll,t.left,t.small)
+  };
+}
+
+const TRANSLATIONS = Object.fromEntries(Object.entries(TERMS).map(([lang, terms])=>[lang, phrasePack(terms)]));
+
 let voices=[];
+const languageSelect=document.getElementById('languageSelect');
 const voiceMode=document.getElementById('voiceMode');
 const voiceSelect=document.getElementById('voiceSelect');
 const testVoice=document.getElementById('testVoice');
@@ -174,12 +246,22 @@ const closeSettings=document.getElementById('closeSettings');
 settingsToggle.addEventListener('click',()=>voicePanel.classList.toggle('open'));
 closeSettings.addEventListener('click',()=>voicePanel.classList.remove('open'));
 
-function isSpanishVoice(v){ return /^es(-|_)?/i.test(v.lang || ''); }
+LANGUAGES.forEach(([code,name])=>{
+  const option=document.createElement('option');
+  option.value=code;
+  option.textContent=name;
+  languageSelect.appendChild(option);
+});
+languageSelect.value=localStorage.getItem('fpvVoiceLanguage') || 'es-ES';
+
+function languageRoot(){ return languageSelect.value.split('-')[0].toLowerCase(); }
+function isCurrentLanguageVoice(v){ return (v.lang || '').split(/[-_]/)[0].toLowerCase() === languageRoot(); }
 function isMaleVoice(v){ return /jorge|diego|carlos|juan|pablo|miguel|antonio|male|hombre|mascul/i.test(v.name || ''); }
 function isFemaleVoice(v){ return /paulina|monica|mónica|luciana|marisol|samantha|female|mujer|fem/i.test(v.name || ''); }
 
 function loadVoices(){
-  voices=(speechSynthesis.getVoices()||[]).filter(isSpanishVoice);
+  if (!('speechSynthesis' in window)) return;
+  voices=(speechSynthesis.getVoices()||[]).filter(isCurrentLanguageVoice);
   renderVoiceSelect();
 }
 
@@ -188,7 +270,7 @@ function renderVoiceSelect(){
   voiceSelect.innerHTML='';
   const auto=document.createElement('option');
   auto.value='';
-  auto.textContent='Auto Spanish';
+  auto.textContent='Auto';
   voiceSelect.appendChild(auto);
   voices.forEach((v,i)=>{
     const o=document.createElement('option');
@@ -202,7 +284,7 @@ function renderVoiceSelect(){
 loadVoices();
 if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged=loadVoices;
 
-function pickSpanishVoice(){
+function pickVoice(){
   const selectedIndex=voiceSelect.value;
   if(selectedIndex !== '' && voices[Number(selectedIndex)]) return voices[Number(selectedIndex)];
 
@@ -216,23 +298,37 @@ function pickSpanishVoice(){
   return voices[0] || null;
 }
 
+function selectedText(command){
+  return (TRANSLATIONS[languageSelect.value] || TRANSLATIONS['en-US'])[command] || command;
+}
+
 function speak(text){
   if (!('speechSynthesis' in window)) { alert('Speech synthesis is not supported'); return; }
   loadVoices();
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(text);
-  u.lang='es-ES';
+  u.lang=languageSelect.value;
   u.rate=0.96;
   u.pitch=0.88;
   u.volume=1;
-  const v=pickSpanishVoice();
+  const v=pickVoice();
   if(v) u.voice=v;
   speechSynthesis.speak(u);
 }
 
-testVoice.addEventListener('click',()=>speak('Yaw derecha grande.'));
-voiceMode.addEventListener('change',()=>speak('Pitch arriba mediano.'));
-voiceSelect.addEventListener('change',()=>speak('Throttle más fuerte.'));
+function speakCommand(command){
+  speak(selectedText(command));
+}
+
+testVoice.addEventListener('click',()=>speakCommand('yawRightLarge'));
+languageSelect.addEventListener('change',()=>{
+  localStorage.setItem('fpvVoiceLanguage', languageSelect.value);
+  voiceSelect.value='';
+  loadVoices();
+  speakCommand('holdAltitude');
+});
+voiceMode.addEventListener('change',()=>speakCommand('pitchUpMedium'));
+voiceSelect.addEventListener('change',()=>speakCommand('fallingThrottleUp'));
 
 // unlock iOS voices on first touch
 window.addEventListener('touchstart',()=>{loadVoices();},{once:true});
