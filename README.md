@@ -6,10 +6,12 @@ Edit only `phrases-uk.csv` when preparing Ukrainian spoken command text.
 
 The `speechUk` column is the exact phrase that should be spoken for that button.
 
-## OpenAI TTS test audio
+## OpenAI TTS audio generation
 
-Generate the temporary test MP3 with:
+Generate MP3 files from a phrase CSV with:
 
 ```bash
-node generate-test-audio.js
+node generate-audio.js --file phrases-uk-en-markup.csv --lang uk-UA
 ```
+
+Add `--force` to overwrite existing MP3 files.
