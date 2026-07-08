@@ -71,6 +71,32 @@ const COMMANDS = window.FPV_COMMANDS || [];
 const COMMAND_BY_ID = Object.fromEntries(COMMANDS.map(command=>[command.id, command]));
 const APP_LANGUAGES = window.FPV_LANGUAGES || [['uk-UA','Українська']];
 const AUDIO_LANGUAGES = new Set(['uk-UA','es-ES','en-US']);
+const HIDDEN_LABEL_COMMANDS = new Set([
+  'throttle_up_large',
+  'throttle_up_medium',
+  'throttle_up_small',
+  'throttle_down_small',
+  'throttle_down_medium',
+  'throttle_down_large',
+  'yaw_left_large',
+  'yaw_left_medium',
+  'yaw_left_small',
+  'yaw_right_small',
+  'yaw_right_medium',
+  'yaw_right_large',
+  'roll_left_large',
+  'roll_left_medium',
+  'roll_left_small',
+  'roll_right_small',
+  'roll_right_medium',
+  'roll_right_large',
+  'pitch_up_large',
+  'pitch_up_medium',
+  'pitch_up_small',
+  'pitch_down_small',
+  'pitch_down_medium',
+  'pitch_down_large'
+]);
 const audioCache = new Map();
 let currentAudio = null;
 let didPreload = false;
@@ -79,7 +105,7 @@ function makeButton(command){
   const b=document.createElement('button');
   b.style.left=command.x+'px';b.style.top=command.y+'px';b.style.width=command.width+'px';b.style.height=command.height+'px';
   b.className=command.className;
-  b.innerText=command.buttonLabel || command.speechUk || '';
+  b.innerText=HIDDEN_LABEL_COMMANDS.has(command.id) ? '' : command.buttonLabel || command.speechUk || '';
   b.dataset.command=command.id;
   b.addEventListener('click',()=>speakCommand(command.id));
   board.appendChild(b);
