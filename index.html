@@ -78,7 +78,7 @@
 const board = document.getElementById('board');
 const COMMANDS = window.FPV_COMMANDS || [];
 const COMMAND_BY_ID = Object.fromEntries(COMMANDS.map(command=>[command.id, command]));
-const LANGUAGES = window.FPV_LANGUAGES || [['uk-UA','Українська']];
+const APP_LANGUAGES = window.FPV_LANGUAGES || [['uk-UA','Українська']];
 const GENERATED_TRANSLATIONS = window.FPV_TRANSLATIONS || {};
 
 function makeButton(command){
@@ -103,7 +103,7 @@ const closeSettings=document.getElementById('closeSettings');
 settingsToggle.addEventListener('click',()=>voicePanel.classList.toggle('open'));
 closeSettings.addEventListener('click',()=>voicePanel.classList.remove('open'));
 
-LANGUAGES.forEach(([code,name])=>{
+APP_LANGUAGES.forEach(([code,name])=>{
   const option=document.createElement('option');
   option.value=code;
   option.textContent=name;
