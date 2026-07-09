@@ -3,8 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#f6f6f7">
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="FPV Voice" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>FPV Voice Commands</title>
   <style>
     :root{
@@ -51,6 +55,7 @@
     .voicePanel select,.voicePanel button{position:static;width:auto;height:48px;border-radius:12px;border:1px solid rgba(0,0,0,.22);background:#fff;color:#111;font:800 16px Arial;text-transform:none;padding:0 12px;display:block}
     .voicePanel button{background:#111;color:#fff}
     .voicePanel .closeSettings{background:#eee;color:#111;width:48px;padding:0;font-size:24px;align-self:flex-end}
+    .offlineStatus{font:800 14px Arial;color:#111;background:#f1f1f1;border:1px solid rgba(0,0,0,.16);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;gap:12px}
   </style>
 </head>
 <body>
@@ -61,6 +66,7 @@
     <button class="closeSettings" id="closeSettings" type="button" aria-label="Закрити">×</button>
     <label for="languageSelect">Мова</label>
     <select id="languageSelect"></select>
+    <div class="offlineStatus" aria-live="polite"><span>Offline cache:</span><span id="offlineCacheStatus">Preparing...</span></div>
   </div>
 
 <script src="commands.js"></script>
@@ -146,6 +152,7 @@ const languageSelect=document.getElementById('languageSelect');
 const settingsToggle=document.getElementById('settingsToggle');
 const voicePanel=document.getElementById('voicePanel');
 const closeSettings=document.getElementById('closeSettings');
+const offlineCacheStatus=document.getElementById('offlineCacheStatus');
 settingsToggle.addEventListener('click',()=>voicePanel.classList.toggle('open'));
 closeSettings.addEventListener('click',()=>voicePanel.classList.remove('open'));
 
@@ -239,6 +246,27 @@ languageSelect.addEventListener('change',()=>{
   localStorage.setItem('fpvVoiceLanguage', languageSelect.value);
   preloadLanguage();
 });
+
+function setOfflineStatus(status){
+  offlineCacheStatus.textContent=status;
+}
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.addEventListener('message',(event)=>{
+    if(event.data?.type === 'OFFLINE_CACHE_STATUS') setOfflineStatus(event.data.status);
+  });
+
+  navigator.serviceWorker.register('./service-worker.js')
+    .then((registration)=>navigator.serviceWorker.ready.then(()=>{
+      const worker=navigator.serviceWorker.controller || registration.active;
+      worker?.postMessage({type:'CHECK_OFFLINE_CACHE'});
+    }))
+    .catch(()=>{
+      setOfflineStatus('Error');
+    });
+}else{
+  setOfflineStatus('Error');
+}
 </script>
 </body>
 </html>

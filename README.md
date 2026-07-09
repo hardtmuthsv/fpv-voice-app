@@ -31,3 +31,31 @@ If `ffmpeg` is missing, install it with:
 ```bash
 brew install ffmpeg
 ```
+
+## PWA offline cache
+
+Regenerate the PWA asset list after adding or removing audio files:
+
+```bash
+node generate-pwa-assets.js
+```
+
+Test locally with:
+
+```bash
+python3 -m http.server 8765
+```
+
+Then open `http://127.0.0.1:8765/`.
+
+Install on iPhone:
+
+```text
+Safari -> Share -> Add to Home Screen
+```
+
+Install on Android:
+
+```text
+Chrome -> menu -> Add to Home Screen / Install app
+```
