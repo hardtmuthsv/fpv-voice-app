@@ -1,0 +1,54 @@
+id,buttonLabel,speechText
+arm,ARM,[EN:Arm]
+disarm,DISARM,[EN:Disarm]
+vtx_power,ПОТУЖНІСТЬ VTX,[EN:VTX] power
+battery,БАТАРЕЯ,Battery
+camera_0,КАМЕРА 0,Camera zero
+camera_45,КАМЕРА 45,Camera forty five
+camera_90,КАМЕРА 90,Camera ninety
+control_invert,ІНВЕРСІЯ КЕРУВАННЯ,Control inversion
+falling_throttle_up,МИ ПАДАЄМО ДАЙ ГАЗ ВГОРУ,We are falling. [EN:Throttle] up
+shaking_throttle_up,ДРОН ТРЯСЕ THROTTLE ВГОРУ,Drone is shaking. [EN:Throttle] up
+throttle_up_large,,[EN:Throttle] up very hard
+throttle_up_medium,,[EN:Throttle] up harder
+throttle_up_small,,[EN:Throttle] up a little
+throttle_90,THROTTLE 90,[EN:Throttle] ninety
+throttle_60,THROTTLE 60,[EN:Throttle] sixty
+throttle_down_small,,[EN:Throttle] down a little
+throttle_down_medium,,[EN:Throttle] down harder
+throttle_down_large,,[EN:Throttle] down very hard
+throttle_down_slow,ПОВІЛЬНО ВНИЗ THROTTLE,[EN:Throttle] down slowly
+throttle_low,МАЛО THROTTLE,Low [EN:Throttle]
+throttle_high,БАГАТО THROTTLE,High [EN:Throttle]
+yaw_left_large,,[EN:Yaw] left very hard
+yaw_left_medium,,[EN:Yaw] left harder
+yaw_left_small,,[EN:Yaw] left a little
+turn_left,ПОВЕРТАЄМО ЛІВОРУЧ,Turning left
+yaw_right_small,,[EN:Yaw] right a little
+yaw_right_medium,,[EN:Yaw] right harder
+yaw_right_large,,[EN:Yaw] right very hard
+turn_right,ПОВЕРТАЄМО ПРАВОРУЧ,Turning right
+dont_climb_fast,НЕ НАБИРАЙ ШВИДКО ВИСОТУ,Do not climb fast
+altitude_500,ВИСОТА 500,Altitude five hundred
+altitude_300,ВИСОТА 300,Altitude three hundred
+altitude_200,ВИСОТА 200,Altitude two hundred
+hold_altitude,ТРИМАЙ ВИСОТУ,Hold altitude
+dont_fly_backwards,НЕ ЛІТАЙ ЗАДОМ,Do not fly backwards
+level_horizon,ВИРІВНЯЙ ГОРИЗОНТ,Level the horizon
+raise_nose,ПІДНІМИ НІС ДРОНА,Raise the drone nose
+pitch_up_large,,[EN:Pitch] up very hard
+pitch_up_medium,,[EN:Pitch] up harder
+pitch_up_small,,[EN:Pitch] up a little
+pitch_down_small,,[EN:Pitch] down a little
+pitch_down_medium,,[EN:Pitch] down harder
+pitch_down_large,,[EN:Pitch] down very hard
+fly_forward,ТРЕБА ЛЕТІТИ ВПЕРЕД,You need to fly forward
+pitch_forward,PITCH ВПЕРЕД,[EN:Pitch] forward
+roll_right_small,,[EN:Roll] right a little
+roll_right_medium,,[EN:Roll] right hard
+roll_right_large,,[EN:Roll] right very hard
+drone_tilted,ДРОН НАХИЛЕНИЙ,Drone is tilted
+pitch_back,PITCH НАЗАД,[EN:Pitch] back
+roll_left_large,,[EN:Roll] left very hard
+roll_left_medium,,[EN:Roll] left hard
+roll_left_small,,[EN:Roll] left a little

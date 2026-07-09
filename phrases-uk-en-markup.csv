@@ -1,0 +1,54 @@
+id,buttonLabel,speechText
+arm,ARM,[EN:Arm]
+disarm,DISARM,[EN:Disarm]
+vtx_power,ПОТУЖНІСТЬ VTX,ПОТУЖНІСТЬ [EN:VTX]
+battery,БАТАРЕЯ,БАТАРЕЯ
+camera_0,КАМЕРА 0,КАМЕРА 0
+camera_45,КАМЕРА 45,КАМЕРА 45
+camera_90,КАМЕРА 90,КАМЕРА 90
+control_invert,ІНВЕРСІЯ КЕРУВАННЯ,ІНВЕРСІЯ КЕРУВАННЯ
+falling_throttle_up,МИ ПАДАЄМО ДАЙ ГАЗ ВГОРУ,МИ ПАДАЄМО ДАЙ ГАЗ ВГОРУ
+shaking_throttle_up,ДРОН ТРЯСЕ THROTTLE ВГОРУ,ДРОН ТРЯСЕ [EN:Throttle] ВГОРУ
+throttle_up_large,,дуже сильно [EN:Throttle] в гору
+throttle_up_medium,,сильніше [EN:Throttle] в гору
+throttle_up_small,,трохи [EN:Throttle] в гору
+throttle_90,THROTTLE 90,[EN:Throttle] 90
+throttle_60,THROTTLE 60,[EN:Throttle] 60
+throttle_down_small,,трохи [EN:Throttle] до низу
+throttle_down_medium,,сильніше [EN:Throttle] до низу
+throttle_down_large,,дуже сильно [EN:Throttle] до низу
+throttle_down_slow,ПОВІЛЬНО ВНИЗ THROTTLE,ПОВІЛЬНО ВНИЗ [EN:Throttle]
+throttle_low,МАЛО THROTTLE,МАЛО [EN:Throttle]
+throttle_high,БАГАТО THROTTLE,БАГАТО [EN:Throttle]
+yaw_left_large,,дуже сильно yaw ліворуч
+yaw_left_medium,,сильніше yaw ліворуч
+yaw_left_small,,трохи yaw ліворуч
+turn_left,ПОВЕРТАЄМО ЛІВОРУЧ,ПОВЕРТАЄМО ЛІВОРУЧ
+yaw_right_small,,трохи yaw праворуч
+yaw_right_medium,,сильніше yaw праворуч
+yaw_right_large,,дуже сильно yaw праворуч
+turn_right,ПОВЕРТАЄМО ПРАВОРУЧ,ПОВЕРТАЄМО ПРАВОРУЧ
+dont_climb_fast,НЕ НАБИРАЙ ШВИДКО ВИСОТУ,НЕ НАБИРАЙ ШВИДКО ВИСОТУ
+altitude_500,ВИСОТА 500,ВИСОТА 500
+altitude_300,ВИСОТА 300,ВИСОТА 300
+altitude_200,ВИСОТА 200,ВИСОТА 200
+hold_altitude,ТРИМАЙ ВИСОТУ,ТРИМАЙ ВИСОТУ
+dont_fly_backwards,НЕ ЛІТАЙ ЗАДОМ,НЕ ЛІТАЙ ЗАДОМ
+level_horizon,ВИРІВНЯЙ ГОРИЗОНТ,ВИРІВНЯЙ ГОРИЗОНТ
+raise_nose,ПІДНІМИ НІС ДРОНА,ПІДНІМИ НІС ДРОНА
+pitch_up_large,,дуже сильно pitch в гору
+pitch_up_medium,,сильніше pitch в гору
+pitch_up_small,,трохи pitch в гору
+pitch_down_small,,трохи pitch до низу
+pitch_down_medium,,сильніше pitch до низу
+pitch_down_large,,дуже сильно pitch до низу
+fly_forward,ТРЕБА ЛЕТІТИ ВПЕРЕД,ТРЕБА ЛЕТІТИ ВПЕРЕД
+pitch_forward,PITCH ВПЕРЕД,[EN:Pitch] ВПЕРЕД
+roll_right_small,,трохи roll праворуч
+roll_right_medium,,сильно roll праворуч
+roll_right_large,,дуже сильно roll праворуч
+drone_tilted,ДРОН НАХИЛЕНИЙ,ДРОН НАХИЛЕНИЙ
+pitch_back,PITCH НАЗАД,[EN:Pitch] НАЗАД
+roll_left_large,,дуже сильно roll ліворуч
+roll_left_medium,,сильно roll ліворуч
+roll_left_small,,трохи roll ліворуч

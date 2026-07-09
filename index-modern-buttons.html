@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="FPV Voice" />
+  <title>FPV Voice Commands</title>
+  <style>
+    :root{
+      --bg:#000000;
+
+      --purple:#8b5cf6;
+
+      --red:#ef6b6b;
+      --red2:#f28b8b;
+      --red3:#f5aaaa;
+
+      --blue:#69a7ff;
+      --blue2:#8bbcff;
+      --blue3:#b5d5ff;
+
+      --green:#6bcb8b;
+      --green2:#8bd9a4;
+      --green3:#bcebc9;
+
+      --yellow:#f4c95d;
+      --yellow2:#f7d98d;
+      --yellow3:#fae8b8;
+
+      --gray:#ececec;
+      --black:#1c1c1e;
+      --muted:#5f6066;
+      --white:#fff;
+
+      --button-shadow:0 8px 22px rgba(0,0,0,.055), 0 1px 0 rgba(255,255,255,.72) inset;
+      --button-border:1px solid rgba(0,0,0,.055);
+    }
+
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+
+    html,body{
+      margin:0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+      background:var(--bg);
+      font-family:Inter, "SF Pro Display", "SF Pro Text", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--black);
+      -webkit-font-smoothing:antialiased;
+      text-rendering:geometricPrecision;
+    }
+
+    body{position:fixed;inset:0}
+
+    .app{
+      position:fixed;
+      left:env(safe-area-inset-left);
+      top:env(safe-area-inset-top);
+      right:env(safe-area-inset-right);
+      bottom:env(safe-area-inset-bottom);
+      background:var(--bg);
+      overflow:hidden;
+    }
+
+    .board{
+      position:absolute;
+      left:0;
+      top:0;
+      width:1600px;
+      height:900px;
+      background:var(--bg);
+      transform-origin:top left;
+      will-change:transform;
+    }
+
+    button{
+      position:absolute;
+      border:var(--button-border);
+      border-radius:28px;
+      font-weight:720;
+      letter-spacing:-.035em;
+      text-transform:none;
+      text-align:center;
+      line-height:1.04;
+      font-size:25px;
+      padding:0 16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--black);
+      box-shadow:var(--button-shadow);
+      cursor:pointer;
+      user-select:none;
+      -webkit-user-select:none;
+      transition:transform 120ms ease, filter 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+    }
+
+    button:active{
+      transform:translateY(1px) scale(.985);
+      filter:brightness(.98);
+      box-shadow:0 4px 12px rgba(0,0,0,.05), 0 1px 0 rgba(255,255,255,.6) inset;
+    }
+
+    .top{
+      background:var(--purple);
+      color:var(--white);
+      font-size:23px;
+      font-weight:760;
+      border-radius:26px;
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:0 10px 26px rgba(139,92,246,.18), 0 1px 0 rgba(255,255,255,.22) inset;
+    }
+
+    .red{background:var(--red);color:var(--white);border-color:rgba(255,255,255,.18)}
+    .red2{background:var(--red2);color:var(--white);border-color:rgba(255,255,255,.20)}
+    .red3{background:var(--red3);color:var(--white);border-color:rgba(255,255,255,.22)}
+
+    .blue{background:var(--blue);color:#0b1b2f}
+    .blue2{background:var(--blue2);color:#10233a}
+    .blue3{background:var(--blue3);color:#18324e}
+
+    .green{background:var(--green);color:#102317}
+    .green2{background:var(--green2);color:#14301e}
+    .green3{background:var(--green3);color:#173720}
+
+    .yellow{background:var(--yellow);color:#2d2105}
+    .yellow2{background:var(--yellow2);color:#33260b}
+    .yellow3{background:var(--yellow3);color:#392d12}
+
+    .gray{background:var(--gray);color:var(--black)}
+    .white{background:#fff;color:var(--black)}
+
+    .pill{border-radius:24px}
+    .vertical{writing-mode:vertical-rl;text-orientation:mixed}
+    .small{font-size:22px}.mid{font-size:24px}.big{font-size:28px}
+
+    #rotateHint{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:#111;
+      color:white;
+      z-index:20;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      font:760 26px/1.25 Inter, "SF Pro Display", system-ui, sans-serif;
+      padding:30px;
+    }
+
+    .settingsToggle{
+      position:fixed;
+      left:calc(12px + env(safe-area-inset-left));
+      bottom:calc(12px + env(safe-area-inset-bottom));
+      z-index:12;
+      width:58px;
+      height:58px;
+      border-radius:20px;
+      background:#1c1c1e;
+      color:#fff;
+      font:760 25px Inter, "SF Pro Display", system-ui, sans-serif;
+      border:1px solid rgba(255,255,255,.12);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 10px 28px rgba(0,0,0,.22);
+      text-transform:none;
+      padding:0;
+    }
+
+    .settingsToggle:active{transform:translateY(1px) scale(.985)}
+
+    .voicePanel{
+      position:fixed;
+      left:0;
+      top:0;
+      bottom:0;
+      width:min(360px,86vw);
+      z-index:11;
+      background:rgba(255,255,255,.96);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      border-right:1px solid rgba(0,0,0,.08);
+      border-top-right-radius:24px;
+      border-bottom-right-radius:24px;
+      padding:calc(16px + env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      align-items:stretch;
+      font:700 16px Inter, "SF Pro Display", system-ui, sans-serif;
+      color:#111;
+      box-shadow:18px 0 48px rgba(0,0,0,.14);
+      transform:translateX(-105%);
+      transition:transform .18s ease;
+    }
+
+    .voicePanel.open{transform:translateX(0)}
+
+    .voicePanel label{
+      font:760 13px Inter, "SF Pro Display", system-ui, sans-serif;
+      text-transform:uppercase;
+      letter-spacing:.03em;
+      color:var(--muted);
+      margin-top:2px;
+    }
+
+    .voicePanel select,
+    .voicePanel button{
+      position:static;
+      width:auto;
+      height:50px;
+      border-radius:18px;
+      border:1px solid rgba(0,0,0,.08);
+      background:#f2f2f3;
+      color:#111;
+      font:700 16px Inter, "SF Pro Display", system-ui, sans-serif;
+      text-transform:none;
+      padding:0 14px;
+      display:block;
+      box-shadow:none;
+      letter-spacing:-.02em;
+    }
+
+    .voicePanel button{background:#1c1c1e;color:#fff}
+
+    .voicePanel .closeSettings{
+      background:#f2f2f3;
+      color:#111;
+      width:50px;
+      padding:0;
+      font-size:24px;
+      align-self:flex-end;
+      border-radius:18px;
+    }
+  </style>
+</head>
+<body>
+  <div id="rotateHint">Поверни телефон горизонтально</div>
+  <main class="app" id="app"><section class="board" id="board"></section></main>
+  <button class="settingsToggle" id="settingsToggle" type="button" aria-label="Налаштування">⚙</button>
+  <div class="voicePanel" id="voicePanel">
+    <button class="closeSettings" id="closeSettings" type="button" aria-label="Закрити">×</button>
+    <label for="languageSelect">Мова</label>
+    <select id="languageSelect"></select>
+  </div>
+
+<script src="commands.js"></script>
+<script>
+const board = document.getElementById('board');
+const app = document.getElementById('app');
+const BOARD_WIDTH = 1600;
+const BOARD_HEIGHT = 900;
+const COMMANDS = window.FPV_COMMANDS || [];
+const COMMAND_BY_ID = Object.fromEntries(COMMANDS.map(command=>[command.id, command]));
+const APP_LANGUAGES = window.FPV_LANGUAGES || [['uk-UA','Українська']];
+const AUDIO_LANGUAGES = new Set(['uk-UA','es-ES','en-US']);
+const HIDDEN_LABEL_COMMANDS = new Set([
+  'throttle_up_large',
+  'throttle_up_medium',
+  'throttle_up_small',
+  'throttle_down_small',
+  'throttle_down_medium',
+  'throttle_down_large',
+  'yaw_left_large',
+  'yaw_left_medium',
+  'yaw_left_small',
+  'yaw_right_small',
+  'yaw_right_medium',
+  'yaw_right_large',
+  'roll_left_large',
+  'roll_left_medium',
+  'roll_left_small',
+  'roll_right_small',
+  'roll_right_medium',
+  'roll_right_large',
+  'pitch_up_large',
+  'pitch_up_medium',
+  'pitch_up_small',
+  'pitch_down_small',
+  'pitch_down_medium',
+  'pitch_down_large'
+]);
+const audioCache = new Map();
+let currentAudio = null;
+let didPreload = false;
+let scaleFrame = null;
+
+function scaleBoard(){
+  scaleFrame=null;
+  const rect=app.getBoundingClientRect();
+  const scale=Math.min(1, rect.width / BOARD_WIDTH, rect.height / BOARD_HEIGHT);
+  const x=(rect.width - BOARD_WIDTH * scale) / 2;
+  const y=(rect.height - BOARD_HEIGHT * scale) / 2;
+  board.style.transform=`translate(${x}px, ${y}px) scale(${scale})`;
+}
+
+function requestScaleBoard(){
+  if(scaleFrame !== null) return;
+  scaleFrame=requestAnimationFrame(scaleBoard);
+}
+
+function makeButton(command){
+  const b=document.createElement('button');
+  b.style.left=command.x+'px';b.style.top=command.y+'px';b.style.width=command.width+'px';b.style.height=command.height+'px';
+  b.className=command.className;
+  b.innerText=HIDDEN_LABEL_COMMANDS.has(command.id) ? '' : command.buttonLabel || command.speechUk || '';
+  b.dataset.command=command.id;
+  b.addEventListener('click',()=>speakCommand(command.id));
+  board.appendChild(b);
+}
+COMMANDS.forEach(makeButton);
+requestScaleBoard();
+
+window.addEventListener('load',requestScaleBoard);
+window.addEventListener('resize',requestScaleBoard);
+window.addEventListener('orientationchange',requestScaleBoard);
+window.addEventListener('pageshow',requestScaleBoard);
+document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden) requestScaleBoard();
+});
+if(window.visualViewport){
+  visualViewport.addEventListener('resize',requestScaleBoard);
+  visualViewport.addEventListener('scroll',requestScaleBoard);
+}
+
+const languageSelect=document.getElementById('languageSelect');
+const settingsToggle=document.getElementById('settingsToggle');
+const voicePanel=document.getElementById('voicePanel');
+const closeSettings=document.getElementById('closeSettings');
+settingsToggle.addEventListener('click',()=>voicePanel.classList.toggle('open'));
+closeSettings.addEventListener('click',()=>voicePanel.classList.remove('open'));
+
+APP_LANGUAGES.filter(([code])=>AUDIO_LANGUAGES.has(code)).forEach(([code,name])=>{
+  const option=document.createElement('option');
+  option.value=code;
+  option.textContent=name;
+  languageSelect.appendChild(option);
+});
+const savedLanguage=localStorage.getItem('fpvVoiceLanguage');
+languageSelect.value=AUDIO_LANGUAGES.has(savedLanguage) ? savedLanguage : 'uk-UA';
+
+function audioPath(commandId, lang=languageSelect.value){
+  return `audio/${lang}/${commandId}.mp3`;
+}
+
+function getAudio(src){
+  if(!audioCache.has(src)){
+    const audio=new Audio(src);
+    audio.preload='auto';
+    audioCache.set(src,audio);
+  }
+  return audioCache.get(src);
+}
+
+function preloadLanguage(lang=languageSelect.value){
+  COMMANDS.forEach(command=>getAudio(audioPath(command.id, lang)));
+}
+
+function speak(text, lang=languageSelect.value){
+  if (!('speechSynthesis' in window)) { alert('Speech synthesis is not supported'); return; }
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang=lang;
+  u.rate=1.2;
+  u.pitch=0.9;
+  u.volume=1;
+  speechSynthesis.speak(u);
+}
+
+function fallbackSpeech(command, lang=languageSelect.value){
+  const translated=window.FPV_TRANSLATIONS?.[lang]?.[command.speechKey];
+  speak(translated || command.speechUk || command.buttonLabel || command.id, lang);
+}
+
+function speakCommand(commandId){
+  const command=COMMAND_BY_ID[commandId];
+  if(!command) return;
+
+  const src=audioPath(command.id);
+  const audio=getAudio(src);
+  let handledError=false;
+
+  if(currentAudio){
+    currentAudio.pause();
+    currentAudio.currentTime=0;
+  }
+  if('speechSynthesis' in window) speechSynthesis.cancel();
+
+  currentAudio=audio;
+  audio.currentTime=0;
+  audio.onerror=()=>{
+    if(audio !== currentAudio) return;
+    if(handledError) return;
+    handledError=true;
+    console.warn(`Missing audio: ${src}`);
+    fallbackSpeech(command);
+  };
+  audio.play().catch(()=>{
+    if(audio !== currentAudio) return;
+    if(handledError) return;
+    handledError=true;
+    console.warn(`Audio playback failed: ${src}`);
+    fallbackSpeech(command);
+  });
+}
+
+window.addEventListener('pointerdown',()=>{
+  if(didPreload) return;
+  didPreload=true;
+  preloadLanguage();
+},{once:true});
+
+window.addEventListener('touchstart',()=>{
+  if(didPreload) return;
+  didPreload=true;
+  preloadLanguage();
+},{once:true});
+
+languageSelect.addEventListener('change',()=>{
+  localStorage.setItem('fpvVoiceLanguage', languageSelect.value);
+  preloadLanguage();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+id,buttonLabel,speechText
+arm,ARM,Arm
+disarm,DISARM,Disarm
+vtx_power,ПОТУЖНІСТЬ VTX,Potencia VTX
+battery,БАТАРЕЯ,Batería
+camera_0,КАМЕРА 0,Cámara cero
+camera_45,КАМЕРА 45,Cámara cuarenta y cinco
+camera_90,КАМЕРА 90,Cámara noventa
+control_invert,ІНВЕРСІЯ КЕРУВАННЯ,Inversión de control
+falling_throttle_up,МИ ПАДАЄМО ДАЙ ГАЗ ВГОРУ,Estamos cayendo. Throttle arriba
+shaking_throttle_up,ДРОН ТРЯСЕ THROTTLE ВГОРУ,El dron tiembla. Throttle arriba
+throttle_up_large,,Throttle arriba muy fuerte
+throttle_up_medium,,Throttle arriba fuerte
+throttle_up_small,,Throttle arriba poco
+throttle_90,THROTTLE 90,Throttle noventa
+throttle_60,THROTTLE 60,Throttle sesenta
+throttle_down_small,,Throttle abajo poco
+throttle_down_medium,,Throttle abajo fuerte
+throttle_down_large,,Throttle abajo muy fuerte
+throttle_down_slow,ПОВІЛЬНО ВНИЗ THROTTLE,Throttle abajo despacio
+throttle_low,МАЛО THROTTLE,Poco Throttle
+throttle_high,БАГАТО THROTTLE,Mucho Throttle
+yaw_left_large,,Yaw izquierda muy fuerte
+yaw_left_medium,,Yaw izquierda fuerte
+yaw_left_small,,Yaw izquierda poco
+turn_left,ПОВЕРТАЄМО ЛІВОРУЧ,Giramos a la izquierda
+yaw_right_small,,Yaw derecha poco
+yaw_right_medium,,Yaw derecha fuerte
+yaw_right_large,,Yaw derecha muy fuerte
+turn_right,ПОВЕРТАЄМО ПРАВОРУЧ,Giramos a la derecha
+dont_climb_fast,НЕ НАБИРАЙ ШВИДКО ВИСОТУ,No subas rápido
+altitude_500,ВИСОТА 500,Altura quinientos
+altitude_300,ВИСОТА 300,Altura trescientos
+altitude_200,ВИСОТА 200,Altura doscientos
+hold_altitude,ТРИМАЙ ВИСОТУ,Mantén la altura
+dont_fly_backwards,НЕ ЛІТАЙ ЗАДОМ,No vueles hacia atrás
+level_horizon,ВИРІВНЯЙ ГОРИЗОНТ,Nivela el horizonte
+raise_nose,ПІДНІМИ НІС ДРОНА,Sube la nariz del dron
+pitch_up_large,,Pitch arriba muy fuerte
+pitch_up_medium,,Pitch arriba fuerte
+pitch_up_small,,Pitch arriba poco
+pitch_down_small,,Pitch abajo poco
+pitch_down_medium,,Pitch abajo fuerte
+pitch_down_large,,Pitch abajo muy fuerte
+fly_forward,ТРЕБА ЛЕТІТИ ВПЕРЕД,Hay que volar adelante
+pitch_forward,PITCH ВПЕРЕД,Pitch adelante
+roll_right_small,,Roll derecha poco
+roll_right_medium,,Roll derecha fuerte
+roll_right_large,,Roll derecha muy fuerte
+drone_tilted,ДРОН НАХИЛЕНИЙ,El dron está inclinado
+pitch_back,PITCH НАЗАД,Pitch atrás
+roll_left_large,,Roll izquierda muy fuerte
+roll_left_medium,,Roll izquierda fuerte
+roll_left_small,,Roll izquierda poco
