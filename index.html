@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-  <meta name="theme-color" content="#f6f6f7">
+  <meta name="theme-color" content="#1f2329">
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="FPV Voice" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>FPV Voice Commands</title>
   <style>
     :root{
-      --bg:#f5f5f5;
+      --bg:#1f2329;
       --purple:#a51685;
       --red:#c33535;
       --red2:#c95f5f;
@@ -46,8 +46,8 @@
     .pill{border-radius:18px}
     .vertical{writing-mode:vertical-rl;text-orientation:mixed}
     .small{font-size:22px}.mid{font-size:24px}.big{font-size:28px}
-    #rotateHint{display:none;position:fixed;inset:0;background:#111;color:white;z-index:20;align-items:center;justify-content:center;text-align:center;font:800 26px/1.25 Arial;padding:30px}
-    .settingsToggle{position:fixed;left:calc(12px + env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom));z-index:12;width:58px;height:58px;border-radius:18px;background:#111;color:#fff;font:900 26px Arial;border:0;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.22);text-transform:none;padding:0}
+    #rotateHint{display:none;position:fixed;inset:0;background:#1f2329;color:white;z-index:20;align-items:center;justify-content:center;text-align:center;font:800 26px/1.25 Arial;padding:30px}
+    .settingsToggle{position:fixed;left:calc(12px + env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom));z-index:12;width:58px;height:58px;border-radius:18px;background:#252a32;color:#fff;font:900 26px Arial;border:0;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.22);text-transform:none;padding:0}
     .settingsToggle:active{transform:scale(.96)}
     .voicePanel{position:fixed;left:0;top:0;bottom:0;width:min(360px,86vw);z-index:11;background:rgba(255,255,255,.97);border-right:1px solid rgba(0,0,0,.18);padding:calc(16px + env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px;align-items:stretch;font:800 16px Arial;color:#111;box-shadow:8px 0 28px rgba(0,0,0,.18);transform:translateX(-105%);transition:transform .18s ease}
     .voicePanel.open{transform:translateX(0)}
@@ -129,9 +129,9 @@ const HIDDEN_LABEL_COMMANDS = new Set([
   'pitch_down_medium',
   'pitch_down_large'
 ]);
-const audioCache = new Map();
 let currentAudio = null;
-let didPreload = false;
+let currentAudioToken = 0;
+let didWarmAudioCache = false;
 let scaleFrame = null;
 
 function scaleBoard(){
@@ -200,17 +200,26 @@ function audioPath(commandId, lang=languageSelect.value){
   return `audio/${lang}/${commandId}.mp3`;
 }
 
-function getAudio(src){
-  if(!audioCache.has(src)){
-    const audio=new Audio(src);
-    audio.preload='auto';
-    audioCache.set(src,audio);
-  }
-  return audioCache.get(src);
+function stopCurrentAudio(){
+  if(!currentAudio) return;
+  try {
+    currentAudio.pause();
+    currentAudio.removeAttribute('src');
+    currentAudio.load();
+  } catch {}
+  currentAudio = null;
 }
 
-function preloadLanguage(lang=languageSelect.value){
-  COMMANDS.forEach(command=>getAudio(audioPath(command.id, lang)));
+function warmAudioCache(){
+  // iOS Safari often ignores HTMLAudioElement preload for many files.
+  // Fetch warming is safer and lets the Service Worker / HTTP cache store files
+  // without creating 159 active audio elements.
+  AUDIO_LANGUAGES.forEach((lang)=>{
+    COMMANDS.forEach((command)=>{
+      const src=audioPath(command.id, lang);
+      fetch(src, {cache:'force-cache'}).catch(()=>{});
+    });
+  });
 }
 
 function speak(text, lang=languageSelect.value){
@@ -234,48 +243,53 @@ function speakCommand(commandId){
   if(!command) return;
 
   const src=audioPath(command.id);
-  const audio=getAudio(src);
+  const token=++currentAudioToken;
   let handledError=false;
 
-  if(currentAudio){
-    currentAudio.pause();
-    currentAudio.currentTime=0;
-  }
   if('speechSynthesis' in window) speechSynthesis.cancel();
+  stopCurrentAudio();
 
+  const audio=new Audio();
+  audio.preload='auto';
+  audio.src=src;
   currentAudio=audio;
-  audio.currentTime=0;
+
   audio.onerror=()=>{
-    if(audio !== currentAudio) return;
+    if(token !== currentAudioToken) return;
     if(handledError) return;
     handledError=true;
     console.warn(`Missing audio: ${src}`);
     fallbackSpeech(command);
   };
-  audio.play().catch(()=>{
-    if(audio !== currentAudio) return;
+
+  audio.onended=()=>{
+    if(token === currentAudioToken) currentAudio=null;
+  };
+
+  audio.play().catch((error)=>{
+    if(token !== currentAudioToken) return;
     if(handledError) return;
     handledError=true;
-    console.warn(`Audio playback failed: ${src}`);
+    console.warn(`Audio playback failed: ${src}`, error);
     fallbackSpeech(command);
   });
 }
 
 window.addEventListener('pointerdown',()=>{
-  if(didPreload) return;
-  didPreload=true;
-  preloadLanguage();
+  if(didWarmAudioCache) return;
+  didWarmAudioCache=true;
+  warmAudioCache();
 },{once:true});
 
 window.addEventListener('touchstart',()=>{
-  if(didPreload) return;
-  didPreload=true;
-  preloadLanguage();
+  if(didWarmAudioCache) return;
+  didWarmAudioCache=true;
+  warmAudioCache();
 },{once:true});
 
 languageSelect.addEventListener('change',()=>{
   localStorage.setItem('fpvVoiceLanguage', languageSelect.value);
-  preloadLanguage();
+  stopCurrentAudio();
 });
 
 const INSTALL_GUIDES = {
